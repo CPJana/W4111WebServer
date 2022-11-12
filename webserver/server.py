@@ -46,12 +46,12 @@ engine = create_engine(DATABASEURI)
 
 
 # Here we create a test table and insert some values in it
-engine.execute("""DROP TABLE IF EXISTS test;""")
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+# engine.execute("""DROP TABLE IF EXISTS test;""")
+# engine.execute("""CREATE TABLE IF NOT EXISTS test (
+#   id serial,
+#   name text
+# );""")
+# engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
 
 
@@ -108,15 +108,15 @@ def index():
   # DEBUG: this is debugging code to see what request looks like
   print(request.args)
 
-
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT name FROM test")
+  cursor = g.conn.execute("SELECT P.name FROM Professor P")
   names = []
   for result in cursor:
     names.append(result['name'])  # can also be accessed using result[0]
   cursor.close()
+
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -161,9 +161,17 @@ def index():
 # notice that the functio name is another() rather than index()
 # the functions for each app.route needs to have different names
 #
-@app.route('/another')
-def another():
-  return render_template("anotherfile.html")
+@app.route('/classes')
+def classes():
+
+  cursor = g.conn.execute("SELECT C.class_id, C.professor_id FROM Class C")
+  names = []
+  for result in cursor:
+    names.append((result['class_id'], result['professor_id']))
+  cursor.close()
+
+  context = dict(data = names)
+  return render_template("classes.html", **context)
 
 
 # Example of adding new data to the database
