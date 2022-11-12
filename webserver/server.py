@@ -159,7 +159,7 @@ def home():
 #     localhost:8111/another
 #
 # notice that the functio name is another() rather than index()
-# the functions for each app.route needs to have different names
+# the functions for each app.route needs to have different name
 #
 @app.route('/classes')
 def classes():
