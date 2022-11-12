@@ -165,10 +165,10 @@ def home():
 @app.route('/classes')
 def classes():
 
-  cursor = g.conn.execute("SELECT C.class_id, C.professor_id FROM Class C")
+  cursor = g.conn.execute("SELECT C.class_id, C.professor_id, C.course_id, C.timeslot_id FROM Class C, Registers R WHERE R.email = %s AND R.class_id = C.class_id ", USER_ID)
   names = []
   for result in cursor:
-    names.append((result['class_id'], result['professor_id']))
+    names.append(result)
   cursor.close()
 
   context = dict(data = names)
@@ -187,8 +187,9 @@ def add():
 
 @app.route('/login')
 def login():
-    abort(401)
-    this_is_never_executed()
+  pass
+    #abort(401)
+    #this_is_never_executed()
 
 
 if __name__ == "__main__":
