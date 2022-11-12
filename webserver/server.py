@@ -96,7 +96,7 @@ def teardown_request(exception):
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
 @app.route('/')
-def index():
+def home():
   """
   request is a special object that Flask provides to access web request information:
   request.method:   "GET" or "POST"
@@ -151,7 +151,7 @@ def index():
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("index.html", **context)
+  return render_template("home.html", **context)
 
 #
 # This is an example of a different path.  You can see it at
