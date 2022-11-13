@@ -4,10 +4,25 @@
     border: 1px solid lightgrey;
     width: 100%;
     margin: 10px;
+    padding-left: 20px;
+    text-decoration: none;
+}
+.class-preview:hover{
+    border: 1px solid lightgrey;
+    width: 100%;
+    margin: 10px;
+    padding-left: 20px;
+    text-decoration: none;
+    background-color: lightgrey;
 }
 
 .page-header{
     font-size: 50px;
     height: 50px;
     margin-bottom: 50px;
+}
+
+a.no-underline{
+    text-decoration: none;
+    width: 80%;
 }

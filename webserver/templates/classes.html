@@ -11,12 +11,16 @@
         
         {% for result in data %}
             <div class="row">
-                <div class = "class-preview">
-                    {{result["course_name"]}} <br>
-                    {{result["course_id"]}} <br>
-                    {{result["professor_name"]}} <br>
-                    {{result["timeslot_id"]}} <br>
-                </div>
+                <a class="no-underline"href = "{{url_for('home')}}" >
+                    <div class="class-preview">
+                        {{result["course_name"]}} <br>
+                        {{result["course_id"]}} <br>
+                        {{result["professor_name"]}} <br>
+                        {{result["start_time"]}} <br>
+                        {{result["end_time"]}} <br>
+                        {{result["days_of_week"]}} <br>
+                    </div>
+                </a>
             </div>
         {% endfor %}
     </div>
