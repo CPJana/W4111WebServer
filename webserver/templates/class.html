@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+
+    <!-- Top banner with class name and professor -->
+    <div class="col-md-12">
+        <div class="row">
+            <div class = "col-md-6 page-header">
+                {{classes[0]["course_name"]}}
+            </div>
+            <div class = "col-md-6">
+                {{classes[0]["professor_name"]}}
+            </div>
+        </div>
+        <!-- Class info -->
+        <div class="row">
+            Course ID: {{classes[0]["course_id"]}}
+            
+        </div>
+    </div>
+    <!-- Friends in the class -->
+    <div class="col-md-6">
+        {% if friends|length > 0 %}
+            {% for friend in friends %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('home')}}" >
+                        <div class="class-preview">
+                            {{friend["first_name"]}} {{friend["last_name"]}} <br>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            None of your friends are taking this class.
+        {%endif%}
+    </div>
+    <!-- Majors fulfilled by the class -->
+    <div class="col-md-6">
+
+    </div>
+</div>
+
+
+
+{% endblock %}
