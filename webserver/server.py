@@ -244,7 +244,7 @@ def majors():
 @app.route('/courses')
 def courses():
   
-  cursor = g.conn.execute("SELECT C.name, C.course_id, C.name FROM Course C")
+  cursor = g.conn.execute("SELECT C.name, C.course_id, C.department FROM Course C")
   names = []
   for result in cursor:
     names.append(result)
