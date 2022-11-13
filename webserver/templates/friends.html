@@ -12,7 +12,7 @@
 
         {% for result in data %}
             <div class="row">
-                <a class="no-underline" href = "{{url_for('friendID', friendId=result['email'])}}" >
+                <a class="no-underline" href = "{{url_for('friendID', friendID=result['email'])}}" >
                     <div class = "friend-preview">
                         {{result["email"]}}
                         {{result["first_name"]}}
