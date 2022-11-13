@@ -26,3 +26,11 @@ a.no-underline{
     text-decoration: none;
     width: 80%;
 }
+
+.course-name{
+    font-size: 30px;
+}
+
+.professor-name{
+    font-size: 15px;
+}

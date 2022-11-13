@@ -2,32 +2,19 @@
 
 {% block content %}
 
+<h1>Majors Page</h1>
 <div class="row">
     <div class="col-md-5">
-
-        <div class = "page-header">
-            Your Classes
-        </div>
-        
+        Professors
         {% for result in data %}
             <div class="row">
-                <a class="no-underline"href = "{{url_for('classId', classId=result['class_id'])}}" >
-                    <div class="class-preview">
-                        {{result["course_name"]}} <br>
-                        {{result["course_id"]}} <br>
-                        {{result["professor_name"]}} <br>
-                        {{result["start_time"]}} <br>
-                        {{result["end_time"]}} <br>
-                        {{result["days_of_week"]}} <br>
-                    </div>
-                </a>
+                <div class = "courses-preview">
+                    {{result["class_id"]}}
+                </div>
             </div>
         {% endfor %}
     </div>
     <div class="col-md-7">
-        <div class = "page-header">
-            Search Classes
-        </div>
         <div class="row">
             <form method="POST" action="/add">
                 <p>Search classes by name: <input type="text" name="name"> <input type="submit" value="Add"></p>

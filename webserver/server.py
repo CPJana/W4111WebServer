@@ -162,8 +162,8 @@ def home():
 # notice that the functio name is another() rather than index()
 # the functions for each app.route needs to have different name
 #
-@app.route('/classes')
-def classes():
+@app.route('/schedule')
+def schedule():
 
   cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
                           FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T  \
@@ -176,7 +176,7 @@ def classes():
   cursor.close()
 
   context = dict(data = classes)
-  return render_template("classes.html", **context)
+  return render_template("schedule.html", **context)
 
 @app.route('/class/<classId>')
 def classId(classId):
@@ -252,6 +252,18 @@ def courses():
 
   context = dict(data = names)
   return render_template("courses.html", **context)
+
+@app.route('/classes')
+def classes():
+  
+  cursor = g.conn.execute("SELECT C.class_id FROM Class C")
+  classes = []
+  for result in cursor:
+    classes.append(result)
+  cursor.close()
+
+  context = dict(data = classes)
+  return render_template("classes.html", **context)
 
 
 # Example of adding new data to the database
