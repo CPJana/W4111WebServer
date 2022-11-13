@@ -5,16 +5,22 @@
 <h1>Friends Page</h1>
 <div class="row">
     <div class="col-md-5">
-        Your Friends
+
+        <div class = "page-header">
+            Your Friends
+        </div>
+
         {% for result in data %}
             <div class="row">
-                <div class = "friend-preview">
-                    {{result["email"]}}
-                    {{result["first_name"]}}
-                    {{result["last_name"]}}
-                    {{result["graduating_class"]}}
+                <a class="no-underline" href = "{{url_for('friendID', friendId=result['email'])}}" >
+                    <div class = "friend-preview">
+                        {{result["email"]}}
+                        {{result["first_name"]}}
+                        {{result["last_name"]}}
+                        {{result["graduating_class"]}}
 
-                </div>
+                    </div>
+                </a>
             </div>
         {% endfor %}
     </div>

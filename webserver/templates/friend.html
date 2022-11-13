@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+
+    <!-- Top banner with class name and professor -->
+    <div class="col-md-12">
+        <div class="row">
+            <div class = "col-md-6 page-header">
+                {{friend[0]["first_name"]}}
+            </div>
+        </div>
+    </div>
+    <!-- Shared classes -->
+    <div class="col-md-6">
+        {% if shared_classes|length > 0 %}
+            {% for class in shared_classes %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('classID', classID=result['class_id'])}}" >
+                        <div class="class-preview">
+                            {{shared_classes["course_name"]}} <br>
+                            {{shared_classes["course_id"]}} <br>
+                            {{shared_classes["professor_name"]}} <br>
+                            {{shared_classes["start_time"]}} <br>
+                            {{shared_classes["end_time"]}} <br>
+                            {{shared_classes["days_of_week"]}} <br>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            No shared classes with friend[0]["first_name"].
+        {%endif%}
+    </div>
+    <!-- Majors fulfilled by the class -->
+    <div class="col-md-6">
+
+    </div>
+</div>
+
+{% endblock %}

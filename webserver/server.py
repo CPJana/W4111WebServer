@@ -198,8 +198,6 @@ def classId(classId):
   for result in cursor:
     friends.append(result)
 
-
-
   context = dict(classes = classes, friends = friends)
 
   return render_template("class.html", **context)
@@ -217,17 +215,32 @@ def friends():
   context = dict(data = names)
   return render_template("friends.html", **context)
 
-@app.route('/professors')
-def professors():
-  
-  cursor = g.conn.execute("SELECT P.name, P.department FROM Professor P")
-  names = []
-  for result in cursor:
-    names.append(result)
-  cursor.close()
+@app.route('/friend/<friendID>')
+def friendID(friendID):
 
-  context = dict(data = names)
-  return render_template("professors.html", **context)
+  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
+                          FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R\
+                          WHERE R.email=%s AND Cl.class_id IN (SELECT R.class_id FROM Registers R, Befriends B WHERE B.email1=%s AND B.email2=%s AND R.email=%s) AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
+                          USER_ID, USER_ID, friendID, friendID)
+  
+
+  shared_classes = []
+  for result in cursor:
+    shared_classes.append(result)
+
+  # cursor = g.conn.execute("SELECT S.first_name, S.last_name\
+  #                         FROM Student S, Befriends B \
+  #                         WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 = %s) OR \
+  #                           (R.email = B.email2 AND B.email1 = %s))", classId, USER_ID, USER_ID)
+
+  cursor = g.conn.execute("SELECT S.first_name, S.last_name FROM Befriends B, Student S WHERE B.email1 = %s AND B.email2=%s AND S.email=B.email2", USER_ID, friendID)
+  friends = []
+  for result in cursor:
+    friends.append(result)
+
+  context = dict(classes = classes, friends = friends)
+
+  return render_template("friend.html", **context)
 
 @app.route('/majors')
 def majors():
@@ -265,6 +278,17 @@ def classes():
   context = dict(data = classes)
   return render_template("classes.html", **context)
 
+@app.route('/professors')
+def professors():
+  
+  cursor = g.conn.execute("SELECT P.name, P.professor_id, P.department FROM Professor P")
+  names = []
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+
+  context = dict(data = names)
+  return render_template("professors.html", **context)
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
