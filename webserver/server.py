@@ -217,6 +217,29 @@ def friends():
   context = dict(data = names)
   return render_template("friends.html", **context)
 
+@app.route('/professors')
+def professors():
+  
+  cursor = g.conn.execute("SELECT P.name, P.department FROM Professor P")
+  names = []
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+
+  context = dict(data = names)
+  return render_template("professors.html", **context)
+
+@app.route('/majors')
+def majors():
+  
+  cursor = g.conn.execute("SELECT M.name, M.department, M.major_id FROM Major M, Declares D WHERE D.email=%s", USER_ID)
+  names = []
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+
+  context = dict(data = names)
+  return render_template("majors.html", **context)
 
 
 
