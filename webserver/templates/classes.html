@@ -11,7 +11,7 @@
         
         {% for result in data %}
             <div class="row">
-                <a class="no-underline"href = "{{url_for('home')}}" >
+                <a class="no-underline"href = "{{url_for('classId', classId=result['class_id'])}}" >
                     <div class="class-preview">
                         {{result["course_name"]}} <br>
                         {{result["course_id"]}} <br>

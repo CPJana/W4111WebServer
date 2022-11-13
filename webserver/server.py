@@ -165,18 +165,45 @@ def home():
 @app.route('/classes')
 def classes():
 
-  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, 'HH:MI:SS', T.end_time, T.days_of_week \
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
                           FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T  \
                           WHERE R.email = %s AND R.class_id = Cl.class_id AND Cl.professor_id = P.professor_id AND Cl.course_id = Co.course_id \
                             AND T.timeslot_id = Cl.timeslot_id", 
                           USER_ID)
-  names = []
+  classes = []
   for result in cursor:
-    names.append(result)
+    classes.append(result)
   cursor.close()
 
-  context = dict(data = names)
+  context = dict(data = classes)
   return render_template("classes.html", **context)
+
+@app.route('/class/<classId>')
+def classId(classId):
+
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
+                          FROM Class Cl, Course Co, Professor P, Timeslot T \
+                          WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", int(classId))
+
+  classes = []
+  for result in cursor:
+    classes.append(result)
+
+  cursor = g.conn.execute("SELECT S.first_name, S.last_name\
+                          FROM Class Cl, Registers R, Student S, Befriends B \
+                          WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 = %s) OR \
+                            (R.email = B.email2 AND B.email1 = %s))", classId, USER_ID, USER_ID)
+
+  friends = []
+  for result in cursor:
+    friends.append(result)
+
+
+
+  context = dict(classes = classes, friends = friends)
+
+  return render_template("class.html", **context)
+
 
 @app.route('/friends')
 def friends():
@@ -189,6 +216,8 @@ def friends():
 
   context = dict(data = names)
   return render_template("friends.html", **context)
+
+
 
 
 # Example of adding new data to the database
