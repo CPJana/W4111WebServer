@@ -1,3 +1,13 @@
+
+
 .class-preview{
+    border: 1px solid lightgrey;
+    width: 100%;
+    margin: 10px;
+}
+
+.page-header{
+    font-size: 50px;
     height: 50px;
+    margin-bottom: 50px;
 }

@@ -2,23 +2,28 @@
 
 {% block content %}
 
-<h1>Classes Page</h1>
 <div class="row">
     <div class="col-md-5">
-        Your Classes
+
+        <div class = "page-header">
+            Your Classes
+        </div>
+        
         {% for result in data %}
             <div class="row">
                 <div class = "class-preview">
-                    {{result["class_id"]}}
-                    {{result["course_id"]}}
-                    {{result["professor_id"]}}
-                    {{result["timeslot_id"]}}
-
+                    {{result["course_name"]}} <br>
+                    {{result["course_id"]}} <br>
+                    {{result["professor_name"]}} <br>
+                    {{result["timeslot_id"]}} <br>
                 </div>
             </div>
         {% endfor %}
     </div>
     <div class="col-md-7">
+        <div class = "page-header">
+            Search Classes
+        </div>
         <div class="row">
             <form method="POST" action="/add">
                 <p>Search classes by name: <input type="text" name="name"> <input type="submit" value="Add"></p>

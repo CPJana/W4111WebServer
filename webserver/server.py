@@ -165,7 +165,10 @@ def home():
 @app.route('/classes')
 def classes():
 
-  cursor = g.conn.execute("SELECT C.class_id, C.professor_id, C.course_id, C.timeslot_id FROM Class C, Registers R WHERE R.email = %s AND R.class_id = C.class_id ", USER_ID)
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, C.timeslot_id \
+                          FROM Class C, Registers R, Course Co, Professor P  \
+                          WHERE R.email = %s AND R.class_id = C.class_id AND C.professor_id = P.professor_id AND C.course_id = Co.course_id", 
+                          USER_ID)
   names = []
   for result in cursor:
     names.append(result)
@@ -189,7 +192,7 @@ def add():
 def login():
   pass
     #abort(401)
-    #this_is_never_executed()
+    #this_is_never_executed(
 
 
 if __name__ == "__main__":
