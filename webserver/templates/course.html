@@ -8,29 +8,29 @@
     <div class="col-md-12">
         <div class="row">
             <div class = "col-md-6 page-header">
-                {{result["course_id"]}}
+                {{classes["course_id"]}}
             </div>
         </div>
     </div>
     <!-- Shared classes -->
     <div class="col-md-6">
-        {% if result|length > 0 %}
-            {% for class in result %}
+        {% if classes|length > 0 %}
+            {% for class in classes %}
                 <div class="row">
-                    <a class="no-underline"href = "{{url_for('classID', classID=result['class_id'])}}" >
+                    <a class="no-underline"href = "{{url_for('classID', classID=class['class_id'])}}" >
                         <div class="class-preview">
-                            {{result["course_name"]}} <br>
-                            {{result["course_id"]}} <br>
-                            {{result["professor_name"]}} <br>
-                            {{result["start_time"]}} <br>
-                            {{result["end_time"]}} <br>
-                            {{result["days_of_week"]}} <br>
+                            {{class["course_name"]}} <br>
+                            {{class["course_id"]}} <br>
+                            {{class["professor_name"]}} <br>
+                            {{class["start_time"]}} <br>
+                            {{class["end_time"]}} <br>
+                            {{class["days_of_week"]}} <br>
                         </div>
                     </a>
                 </div>
             {% endfor %}
         {% else %}
-            No classes listed for {{result["course_id"]}}.
+            No classes listed for {{classes["course_id"]}}.
         {%endif%}
     </div>
 </div>

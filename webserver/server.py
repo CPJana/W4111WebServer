@@ -179,12 +179,12 @@ def schedule():
   return render_template("schedule.html", **context)
 
 
-@app.route('/class/<classId>')
-def classId(classId):
+@app.route('/class/<classID>')
+def classID(classID):
 
   cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T \
-                          WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", int(classId))
+                          WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", int(classID))
 
   classes = []
   for result in cursor:
@@ -193,7 +193,7 @@ def classId(classId):
   cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name\
                           FROM Class Cl, Registers R, Student S, Befriends B \
                           WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 = %s) OR \
-                            (R.email = B.email2 AND B.email1 = %s))", classId, USER_ID, USER_ID)
+                            (R.email = B.email2 AND B.email1 = %s))", classID, USER_ID, USER_ID)
 
   friends = []
   for result in cursor:
@@ -201,7 +201,7 @@ def classId(classId):
 
   cursor = g.conn.execute("SELECT M.name, M.department\
                           FROM Class Cl, Course Co, Major M, Fulfills F \
-                          WHERE Cl.class_id = %s AND Cl.course_id = CO.course_id AND Co.course_id = F.course_id AND F.major_id = M.major_id", classId)
+                          WHERE Cl.class_id = %s AND Cl.course_id = CO.course_id AND Co.course_id = F.course_id AND F.major_id = M.major_id", classID)
 
   majors = []
   for result in cursor:
@@ -300,7 +300,7 @@ def courseID(courseID):
     classes.append(result)
   cursor.close()
 
-  context = dict(data = classes)
+  context = dict(classes = classes)
   return render_template("course.html", **context)
 
 @app.route('/classes')
