@@ -174,6 +174,18 @@ def classes():
   context = dict(data = names)
   return render_template("classes.html", **context)
 
+@app.route('/friends')
+def friends():
+  
+  cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name, S.graduating_class FROM Befriends B, Student S WHERE B.email1 = %s AND S.email=B.email2", USER_ID)
+  names = []
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+
+  context = dict(data = names)
+  return render_template("friends.html", **context)
+
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
