@@ -15,31 +15,56 @@
         <!-- Class info -->
         <div class="row">
             <div class = "col-md-12">
-                Course ID: {{classes[0]["course_id"]}}
-                Time: {{classes[0]["course_id"]}}
-                Days: {{classes[0]["course_id"]}}
+                <div class = "padded-grey-box">
+                    Course ID: {{classes[0]["course_id"]}}<br>
+                    Time: {{classes[0]["start_time"]}} to {{classes[0]["end_time"]}}<br>
+                    Days: {{classes[0]["days_of_week"]}}
+                </div>
             </div>
             
         </div>
     </div>
     <!-- Friends in the class -->
     <div class="col-md-6">
-        {% if friends|length > 0 %} 
-            {% for friend in friends %}
-                <div class="row">
-                    <a class="no-underline"href = "{{url_for('home')}}" >
-                        <div class="class-preview">
-                            {{friend["first_name"]}} {{friend["last_name"]}} <br>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        {% else %}
-            None of your friends are taking this class.
-        {%endif%}
+        <div class = "padded-grey-box">
+            Friends in this Class
+            <hr>
+            {% if friends|length > 0 %} 
+                {% for friend in friends %}
+                    <div class="row">
+                        <a class="no-underline"href = "{{url_for('friendID',friendID=friend['email'])}}" >
+                            <div class="class-preview">
+                                {{friend["first_name"]}} {{friend["last_name"]}} <br>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                No majors require this class.
+            {%endif%}
+        </div>
+        
     </div>
     <!-- Majors fulfilled by the class -->
     <div class="col-md-6">
+        <div class = "padded-grey-box">
+            Majors that require this class
+            <hr>
+            {% if majors|length > 0 %} 
+                {% for major in majors %}
+                    <div class="row">
+                        <a class="no-underline"href = "{{url_for('home')}}" >
+                            <div class="class-preview">
+                                Major: {{major["name"]}} <br> 
+                                Department: {{major["department"]}} <br>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                None of your friends are taking this class.
+            {%endif%}
+        </div>
 
     </div>
 </div>

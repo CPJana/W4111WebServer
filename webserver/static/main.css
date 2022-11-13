@@ -34,3 +34,8 @@ a.no-underline{
 .professor-name{
     font-size: 15px;
 }
+
+.padded-grey-box{
+    border: 1px solid lightgrey;
+    padding: 10px;
+}

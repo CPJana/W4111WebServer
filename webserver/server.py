@@ -178,6 +178,7 @@ def schedule():
   context = dict(data = classes)
   return render_template("schedule.html", **context)
 
+
 @app.route('/class/<classId>')
 def classId(classId):
 
@@ -189,7 +190,7 @@ def classId(classId):
   for result in cursor:
     classes.append(result)
 
-  cursor = g.conn.execute("SELECT S.first_name, S.last_name\
+  cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name\
                           FROM Class Cl, Registers R, Student S, Befriends B \
                           WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 = %s) OR \
                             (R.email = B.email2 AND B.email1 = %s))", classId, USER_ID, USER_ID)
@@ -198,7 +199,15 @@ def classId(classId):
   for result in cursor:
     friends.append(result)
 
-  context = dict(classes = classes, friends = friends)
+  cursor = g.conn.execute("SELECT M.name, M.department\
+                          FROM Class Cl, Course Co, Major M, Fulfills F \
+                          WHERE Cl.class_id = %s AND Cl.course_id = CO.course_id AND Co.course_id = F.course_id AND F.major_id = M.major_id", classId)
+
+  majors = []
+  for result in cursor:
+    majors.append(result)
+
+  context = dict(classes = classes, friends = friends, majors = majors)
 
   return render_template("class.html", **context)
 
@@ -214,6 +223,7 @@ def friends():
 
   context = dict(data = names)
   return render_template("friends.html", **context)
+
 
 @app.route('/friend/<friendID>')
 def friendID(friendID):
@@ -242,6 +252,7 @@ def friendID(friendID):
 
   return render_template("friend.html", **context)
 
+
 @app.route('/majors')
 def majors():
   
@@ -253,6 +264,7 @@ def majors():
 
   context = dict(data = names)
   return render_template("majors.html", **context)
+
 
 @app.route('/courses')
 def courses():
@@ -266,6 +278,7 @@ def courses():
   context = dict(data = names)
   return render_template("courses.html", **context)
 
+
 @app.route('/classes')
 def classes():
   
@@ -277,6 +290,7 @@ def classes():
 
   context = dict(data = classes)
   return render_template("classes.html", **context)
+
 
 @app.route('/professors')
 def professors():
