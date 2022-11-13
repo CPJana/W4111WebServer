@@ -241,6 +241,17 @@ def majors():
   context = dict(data = names)
   return render_template("majors.html", **context)
 
+@app.route('/courses')
+def courses():
+  
+  cursor = g.conn.execute("SELECT C.name, C.course_id, C.name FROM Course C")
+  names = []
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+
+  context = dict(data = names)
+  return render_template("courses.html", **context)
 
 
 # Example of adding new data to the database
