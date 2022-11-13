@@ -265,6 +265,17 @@ def majors():
   context = dict(data = names)
   return render_template("majors.html", **context)
 
+@app.route('/major/<majorID>')
+def majorID(majorID):
+  
+  cursor = g.conn.execute("SELECT C.name, C.department, C.course_id FROM Course C, Fulfills F WHERE F.major_id=%s AND C.course_id=F.course_id", majorID)
+  fufill_courses = []
+  for result in cursor:
+    fufill_courses.append(result)
+  cursor.close()
+
+  context = dict(data = fufill_courses)
+  return render_template("major.html", **context)
 
 @app.route('/courses')
 def courses():
@@ -278,6 +289,19 @@ def courses():
   context = dict(data = names)
   return render_template("courses.html", **context)
 
+@app.route('/course/<courseID>')
+def courseID(courseID):
+  
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
+                          FROM Class Cl, Course Co, Professor P, Timeslot T  \
+                          WHERE Cl.course_id=%s AND Cl.professor_id = P.professor_id AND T.timeslot_id = Cl.timeslot_id", courseID)
+  classes = []
+  for result in cursor:
+    classes.append(result)
+  cursor.close()
+
+  context = dict(data = classes)
+  return render_template("course.html", **context)
 
 @app.route('/classes')
 def classes():
@@ -290,7 +314,6 @@ def classes():
 
   context = dict(data = classes)
   return render_template("classes.html", **context)
-
 
 @app.route('/professors')
 def professors():

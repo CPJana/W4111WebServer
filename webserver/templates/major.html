@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+
+    <!-- Top banner with class name and professor -->
+    <div class="col-md-12">
+        <div class="row">
+            <div class = "col-md-6 page-header">
+                {{result["name"]}}
+            </div>
+        </div>
+    </div>
+    <!-- Shared classes -->
+    <div class="col-md-6">
+        {% if results|length > 0 %}
+            {% for course in results %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('courseID', courseID=result['course_id'])}}" >
+                        <div class="class-preview">
+                            {{result["course_name"]}} <br>
+                            {{result["course_id"]}} <br>
+                            {{result["department"]}} <br>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            No courses listed for {{result["name"]}}.
+        {%endif%}
+    </div>
+</div>
+
+{% endblock %}

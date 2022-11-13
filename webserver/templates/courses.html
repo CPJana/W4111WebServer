@@ -8,11 +8,13 @@
         Professors
         {% for result in data %}
             <div class="row">
-                <div class = "courses-preview">
-                    {{result["name"]}}
-                    {{result["course_id"]}}
-                    {{result["department"]}}
-                </div>
+                <a class="no-underline"href = "{{url_for('courseID', courseID=result['course_id'])}}" >
+                    <div class = "courses-preview">
+                        {{result["name"]}}
+                        {{result["course_id"]}}
+                        {{result["department"]}}
+                    </div>
+                </a>
             </div>
         {% endfor %}
     </div>
