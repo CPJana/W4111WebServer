@@ -102,7 +102,7 @@ def schedule():
   for result in cursor:
     classes.append(result)
   cursor.close()
-  
+
   context = dict(data = classes)
   return render_template("schedule.html", **context)
 
@@ -137,8 +137,15 @@ def classID(classID):
   majors = []
   for result in cursor:
     majors.append(result)
+  
+  cursor = g.conn.execute("SELECT R.on_waitlist\
+                          FROM Registers R\
+                          WHERE R.class_id=%s AND R.email=%s", classID, session['email'])
+  user_stat=[]
+  for result in cursor:
+    user_stat.append(result)
 
-  context = dict(classes = classes, friends = friends, majors = majors)
+  context = dict(classes = classes, friends = friends, majors = majors, user_stat=user_stat)
 
   return render_template("class.html", **context)
 
