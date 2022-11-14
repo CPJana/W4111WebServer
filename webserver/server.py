@@ -390,18 +390,41 @@ def professorID(professorID):
 
 
 # Example of adding new data to the database
-@app.route('/add/', methods=['POST'])
-def add():
+# @app.route('/add/', methods=['POST'])
+# def add():
+
+#   if not session.get('logged_in'):
+#     return render_template('login.html')
+
+#   name = request.form['name']
+#   print(name)
+#   cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
+#   g.conn.execute(text(cmd), name1 = name, name2 = name);
+#   return redirect('/')
+
+@app.route('/addClass/', methods=['POST'])
+def addClass():
 
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  name = request.form['name']
-  print(name)
-  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)'
-  g.conn.execute(text(cmd), name1 = name, name2 = name)
+  addClassID = request.form['class_id']
+  print(addClassID)
+  cmd = ('INSERT INTO Registers(email, class_id, on_waitlist) VALUES (:email, :addClassID, false)');
+  g.conn.execute(text(cmd), email = session['email'], addClassID = addClassID);
   return redirect('/')
 
+@app.route('/dropClass/', methods=['POST'])
+def dropClass():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  dropClassID = request.form['class_id']
+  #print(name)
+  cmd = ('DELETE FROM Registers R WHERE R.email=(:email) AND R.class_id=(:dropClassID)');
+  g.conn.execute(text(cmd), email = session['email'], dropClassID = dropClassID);
+  return redirect('/')
 
 @app.route('/login/', methods=['POST'])
 def do_admin_login():
