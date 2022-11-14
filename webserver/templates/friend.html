@@ -14,17 +14,18 @@
     </div>
     <!-- Shared classes -->
     <div class="col-md-6">
-        {% if shared_classes|length > 0 %}
-            {% for class in shared_classes %}
+        {% if classes|length > 0 %}
+            {% for class in classes %}
                 <div class="row">
-                    <a class="no-underline"href = "{{url_for('classID', classID=result['class_id'])}}" >
+                    <a class="no-underline"href = "{{url_for('classID', classID=class['class_id'])}}" >
                         <div class="class-preview">
-                            {{shared_classes["course_name"]}} <br>
-                            {{shared_classes["course_id"]}} <br>
-                            {{shared_classes["professor_name"]}} <br>
-                            {{shared_classes["start_time"]}} <br>
-                            {{shared_classes["end_time"]}} <br>
-                            {{shared_classes["days_of_week"]}} <br>
+                            {{class["course_name"]}} <br>
+                            {{class["course_id"]}} <br>
+                            {{class["semester_id"]}} <br>
+                            {{class["professor_name"]}} <br>
+                            {{class["start_time"]}} <br>
+                            {{class["end_time"]}} <br>
+                            {{class["days_of_week"]}} <br>
                         </div>
                     </a>
                 </div>
