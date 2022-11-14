@@ -131,13 +131,20 @@ def classID(classID):
 
   cursor = g.conn.execute("SELECT M.major_id, M.name, M.department\
                           FROM Class Cl, Course Co, Major M, Fulfills F \
-                          WHERE Cl.class_id = %s AND Cl.course_id = CO.course_id AND Co.course_id = F.course_id AND F.major_id = M.major_id", classID)
+                          WHERE Cl.class_id = %s AND Cl.course_id = Co.course_id AND Co.course_id = F.course_id AND F.major_id = M.major_id", classID)
 
   majors = []
   for result in cursor:
     majors.append(result)
 
-  context = dict(classes = classes, friends = friends, majors = majors)
+  cursor = g.conn.execute("SELECT R.prerequisite\
+                          FROM Requires R, Course Co, Class Cl \
+                          WHERE Cl.class_id=%s AND Co.course_id=Cl.course_id AND R.dependent_course=Co.course_id", classID)
+  prerequs=[]
+  for result in cursor:
+    prerequs.append(result)
+
+  context = dict(classes = classes, friends = friends, majors = majors, prerequs=prerequs)
 
   return render_template("class.html", **context)
 
@@ -189,6 +196,7 @@ def friendID(friendID):
   for result in cursor:
     friends.append(result)
 
+  print(friends)
   context = dict(classes = classes, friends = friends)
 
   return render_template("friend.html", **context)

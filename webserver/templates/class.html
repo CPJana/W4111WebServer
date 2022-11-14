@@ -48,6 +48,23 @@
     <!-- Majors fulfilled by the class -->
     <div class="col-md-6">
         <div class = "padded-grey-box">
+            Prerequisite Courses
+            <hr>
+            {% if prerequs|length > 0 %}
+                {% for course in prerequs %} 
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('courseID', courseID=course['prerequisite'])}}" >
+                        <div class="class-preview">
+                            {{course["prerequisite"]}} <br>  
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            {% else %}
+                No prerequisite courses listed.
+            {%endif%}
+        </div>
+        <div class = "padded-grey-box">
             Majors that require this class
             <hr>
             {% if majors|length > 0 %} 
