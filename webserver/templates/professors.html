@@ -2,20 +2,25 @@
 
 {% block content %}
 
-<h1>Professors Page</h1>
+<h1>Professors</h1>
 <div class="row">
     <div class="col-md-5">
         Professors
-        {% for result in data %}
-            <div class="row">
-                <div class = "professor-preview">
-                    {{result["name"]}}
-                    {{result["professor_id"]}}
-                    {{result["department"]}}
-
+        <div class = "row">
+            <div class = "col-md-12 class-list">
+                {% for result in data %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('professorID', professorID=result['professor_id'])}}" >
+                        <div class="class-preview">
+                            {{result["name"]}} <br>
+                            {{result["professor_id"]}} <br>
+                            {{result["department"]}} <br>
+                        </div>
+                    </a>
                 </div>
-            </div>
-        {% endfor %}
+                {% endfor %}
+            </div>  
+        </div>
     </div>
     <div class="col-md-7">
         <div class="row">

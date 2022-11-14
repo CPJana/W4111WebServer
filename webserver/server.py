@@ -300,6 +300,33 @@ def professors():
   context = dict(data = names)
   return render_template("professors.html", **context)
 
+@app.route('/professor/<professorID>/')
+def professorID(professorID):
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
+                          FROM Class Cl, Course Co, Professor P, Timeslot T  \
+                          WHERE Cl.semester_id = %s AND P.professor_id=%s AND Cl.course_id = Co.course_id AND T.timeslot_id = Cl.timeslot_id AND P.professor_id = Cl.professor_id", CURRENT_SEMESTER, professorID)
+  classes = []
+  for result in cursor:
+    classes.append(result)
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT P.name, P.department \
+                          FROM Professor P \
+                          WHERE P.professor_id=%s", professorID)
+  professor = None
+  for result in cursor:
+    professor = result
+    break
+  cursor.close()
+
+  context = dict(classes = classes, professor = professor, semester = CURRENT_SEMESTER)
+  return render_template("professor.html", **context)
+
+
 # Example of adding new data to the database
 @app.route('/add/', methods=['POST'])
 def add():

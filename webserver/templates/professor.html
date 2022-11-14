@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="row">
+            <div class = "col-md-12">
+                <span class="course-name">{{professor["name"]}}</span>&nbsp;
+                <span class="professor-name">{{professor["department"]}}</span>
+            </div>
+        </div>
+        <!-- Class info -->
+
+            
+    </div>
+    <!-- Shared classes -->
+    <div class="col-md-6">
+        {% if classes|length > 0 %}
+            {% for class in classes %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('classID', classID=class['class_id'])}}" >
+                        <div class="class-preview">
+                            {{class["course_name"]}} <br>
+                            {{class["course_id"]}} <br>
+                            {{class["professor_name"]}} <br>
+                            {{class["start_time"]}} <br>
+                            {{class["end_time"]}} <br>
+                            {{class["days_of_week"]}} <br>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            No classes listed for {{professor["name"]}} for {{semester}}.
+        {%endif%}
+    </div>
+</div>
+
+{% endblock %}
