@@ -174,20 +174,20 @@ def friendID(friendID):
   if not session.get('logged_in'):
     return render_template('login.html')
 
+  #(SELECT R.class_id FROM Registers R, Befriends B WHERE (B.email1=%s AND B.email2=%s AND R.email=%s) \
+  #                        OR (B.email1=%s AND B.email2=%s AND R.email=%s))
   cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R\
-                          WHERE R.email=%s AND Cl.class_id IN \
-                          (SELECT R.class_id FROM Registers R, Befriends B WHERE (B.email1=%s AND B.email2=%s AND R.email=%s) \
-                          OR (B.email1=%s AND B.email2=%s AND R.email=%s)) \
-                          AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
-                          session['email'], session['email'], friendID, friendID, friendID, session['email'], friendID)
+                          WHERE R.email=%s AND R.class_id=Cl.class_id AND Co.course_id = Cl.course_id \
+                          AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
+                          friendID)
   
-  shared_classes = []
+  friends_classes = []
   for result in cursor:
-    shared_classes.append(result)
-  print(shared_classes)
-
-  cursor = g.conn.execute("SELECT S.first_name, S.last_name \
+    friends_classes.append(result)
+  print(friends_classes)
+  
+  cursor = g.conn.execute("SELECT S.first_name, S.last_name, S.email \
                           FROM Befriends B, Student S\
                           WHERE (B.email1 = %s AND B.email2=%s AND S.email=B.email2) \
                           OR (B.email1 = %s AND B.email2=%s AND S.email=B.email1)", session['email'], friendID, friendID, session['email'])
@@ -195,7 +195,7 @@ def friendID(friendID):
   for result in cursor:
     friends.append(result)
 
-  context = dict(classes = shared_classes, friends = friends)
+  context = dict(classes = friends_classes, friends = friends)
 
   return render_template("friend.html", **context)
 
@@ -326,7 +326,7 @@ def professorID(professorID):
                           WHERE Cl.semester_id = %s AND P.professor_id=%s AND Cl.course_id = Co.course_id AND T.timeslot_id = Cl.timeslot_id AND P.professor_id = Cl.professor_id", CURRENT_SEMESTER, professorID)
   classes = []
   for result in cursor:
-    class_taught.append(result)
+    classes.append(result)
   cursor.close()
 
   cursor = g.conn.execute("SELECT P.name, P.department \
