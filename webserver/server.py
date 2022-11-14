@@ -1,24 +1,12 @@
-#!/usr/bin/env python2.7
-
-"""
-Columbia W4111 Intro to databases
-Example webserver
-To run locally
-    python server.py
-Go to http://localhost:8111 in your browser
-A debugger such as "pdb" may be helpful for debugging.
-Read about it online.
-"""
-
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, request, render_template, g, redirect, Response, session, flash
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
-
+app.secret_key = os.environ.get("SECRET_KEY")
 
 # XXX: The Database URI should be in the format of: 
 #
@@ -33,7 +21,6 @@ app = Flask(__name__, template_folder=tmpl_dir)
 # Use the DB credentials you received by e-mail
 DB_USER = "wsh2117"
 DB_PASSWORD = "Database2020!"
-USER_ID = "jc4919@barnard.edu"
 
 DB_SERVER = "w4111.cisxo09blonu.us-east-1.rds.amazonaws.com"
 
@@ -83,19 +70,6 @@ def teardown_request(exception):
     pass
 
 
-#
-# @app.route is a decorator around index() that means:
-#   run index() whenever the user tries to access the "/" path using a GET request
-#
-# If you wanted the user to go to e.g., localhost:8111/foobar/ with POST or GET then you could use
-#
-#       @app.route("/foobar/", methods=["POST", "GET"])
-#
-# PROTIP: (the trailing / in the path is important)
-# 
-# see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
-# see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
-#
 @app.route('/')
 def home():
   """
@@ -106,70 +80,23 @@ def home():
   See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
   """
 
-  # DEBUG: this is debugging code to see what request looks like
-  print(request.args)
+  if not session.get('logged_in'):
+    return render_template('login.html')
 
-  #
-  # example of a database query
-  #
-  cursor = g.conn.execute("SELECT P.name FROM Professor P")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
+  return render_template("home.html")
 
 
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  context = dict(data = names)
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template("home.html", **context)
-
-#
-# This is an example of a different path.  You can see it at
-# 
-#     localhost:8111/another
-#
-# notice that the functio name is another() rather than index()
-# the functions for each app.route needs to have different name
-#
-@app.route('/schedule')
+@app.route('/schedule/')
 def schedule():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
 
   cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
                           FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T  \
                           WHERE R.email = %s AND R.class_id = Cl.class_id AND Cl.professor_id = P.professor_id AND Cl.course_id = Co.course_id \
                             AND T.timeslot_id = Cl.timeslot_id", 
-                          USER_ID)
+                          session['email'])
   classes = []
   for result in cursor:
     classes.append(result)
@@ -179,8 +106,11 @@ def schedule():
   return render_template("schedule.html", **context)
 
 
-@app.route('/class/<classID>')
+@app.route('/class/<classID>/')
 def classID(classID):
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
 
   cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T \
@@ -193,7 +123,7 @@ def classID(classID):
   cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name\
                           FROM Class Cl, Registers R, Student S, Befriends B \
                           WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 = %s) OR \
-                            (R.email = B.email2 AND B.email1 = %s))", classID, USER_ID, USER_ID)
+                            (R.email = B.email2 AND B.email1 = %s))", classID, session['email'], session['email'])
 
   friends = []
   for result in cursor:
@@ -212,10 +142,13 @@ def classID(classID):
   return render_template("class.html", **context)
 
 
-@app.route('/friends')
+@app.route('/friends/')
 def friends():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
   
-  cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name, S.graduating_class FROM Befriends B, Student S WHERE B.email1 = %s AND S.email=B.email2", USER_ID)
+  cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name, S.graduating_class FROM Befriends B, Student S WHERE B.email1 = %s AND S.email=B.email2", session['email'])
   names = []
   for result in cursor:
     names.append(result)
@@ -225,13 +158,16 @@ def friends():
   return render_template("friends.html", **context)
 
 
-@app.route('/friend/<friendID>')
+@app.route('/friend/<friendID>/')
 def friendID(friendID):
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
 
   cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R\
                           WHERE R.email=%s AND Cl.class_id IN (SELECT R.class_id FROM Registers R, Befriends B WHERE B.email1=%s AND B.email2=%s AND R.email=%s) AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
-                          USER_ID, USER_ID, friendID, friendID)
+                          session['email'], session['email'], friendID, friendID)
   
 
   shared_classes = []
@@ -243,7 +179,8 @@ def friendID(friendID):
   #                         WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 = %s) OR \
   #                           (R.email = B.email2 AND B.email1 = %s))", classId, USER_ID, USER_ID)
 
-  cursor = g.conn.execute("SELECT S.first_name, S.last_name FROM Befriends B, Student S WHERE B.email1 = %s AND B.email2=%s AND S.email=B.email2", USER_ID, friendID)
+  cursor = g.conn.execute("SELECT S.first_name, S.last_name \
+                          FROM Befriends B, Student S WHERE B.email1 = %s AND B.email2=%s AND S.email=B.email2", session['email'], friendID)
   friends = []
   for result in cursor:
     friends.append(result)
@@ -253,10 +190,13 @@ def friendID(friendID):
   return render_template("friend.html", **context)
 
 
-@app.route('/majors')
+@app.route('/majors/')
 def majors():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
   
-  cursor = g.conn.execute("SELECT M.name, M.department, M.major_id FROM Major M, Declares D WHERE D.email=%s", USER_ID)
+  cursor = g.conn.execute("SELECT M.name, M.department, M.major_id FROM Major M, Declares D WHERE D.email=%s", session['email'])
   names = []
   for result in cursor:
     names.append(result)
@@ -265,8 +205,11 @@ def majors():
   context = dict(data = names)
   return render_template("majors.html", **context)
 
-@app.route('/major/<majorID>')
+@app.route('/major/<majorID>/')
 def majorID(majorID):
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
   
   cursor = g.conn.execute("SELECT C.name, C.department, C.course_id FROM Course C, Fulfills F WHERE F.major_id=%s AND C.course_id=F.course_id", majorID)
   fufill_courses = []
@@ -277,8 +220,11 @@ def majorID(majorID):
   context = dict(data = fufill_courses)
   return render_template("major.html", **context)
 
-@app.route('/courses')
+@app.route('/courses/')
 def courses():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
   
   cursor = g.conn.execute("SELECT C.name, C.course_id, C.department FROM Course C")
   names = []
@@ -289,8 +235,11 @@ def courses():
   context = dict(data = names)
   return render_template("courses.html", **context)
 
-@app.route('/course/<courseID>')
+@app.route('/course/<courseID>/')
 def courseID(courseID):
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
   
   cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
                           FROM Class Cl, Course Co, Professor P, Timeslot T  \
@@ -303,10 +252,14 @@ def courseID(courseID):
   context = dict(classes = classes)
   return render_template("course.html", **context)
 
-@app.route('/classes')
+@app.route('/classes/')
 def classes():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
   
-  cursor = g.conn.execute("SELECT C.class_id FROM Class C")
+  cursor = g.conn.execute("SELECT C.class_id \
+                          FROM Class C")
   classes = []
   for result in cursor:
     classes.append(result)
@@ -315,10 +268,14 @@ def classes():
   context = dict(data = classes)
   return render_template("classes.html", **context)
 
-@app.route('/professors')
+@app.route('/professors/')
 def professors():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
   
-  cursor = g.conn.execute("SELECT P.name, P.professor_id, P.department FROM Professor P")
+  cursor = g.conn.execute("SELECT P.name, P.professor_id, P.department \
+                          FROM Professor P")
   names = []
   for result in cursor:
     names.append(result)
@@ -328,8 +285,12 @@ def professors():
   return render_template("professors.html", **context)
 
 # Example of adding new data to the database
-@app.route('/add', methods=['POST'])
+@app.route('/add/', methods=['POST'])
 def add():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
   name = request.form['name']
   print(name)
   cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
@@ -337,11 +298,30 @@ def add():
   return redirect('/')
 
 
-@app.route('/login')
-def login():
-  pass
-    #abort(401)
-    #this_is_never_executed(
+@app.route('/login/', methods=['POST'])
+def do_admin_login():
+
+  cursor = g.conn.execute("SELECT COUNT(*) as count\
+                          FROM Student S \
+                          WHERE S.email = %s", request.form['email'])
+
+  for result in cursor:
+    if result["count"] > 0:
+      flash('You have logged in.')
+      session['logged_in'] = True
+      session['email'] = request.form['email']
+      return home()
+    else:
+      flash('This login email does not exist')
+      return home()
+    
+  flash('You are not logged in.')
+  return home()
+
+@app.route("/logout")
+def logout():
+  session['logged_in'] = False
+  return home()
 
 
 if __name__ == "__main__":
