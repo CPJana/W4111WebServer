@@ -206,7 +206,8 @@ def majors():
   if not session.get('logged_in'):
     return render_template('login.html')
   
-  cursor = g.conn.execute("SELECT M.name, M.department, M.major_id FROM Major M, Declares D WHERE D.email=%s", session['email'])
+  cursor = g.conn.execute("SELECT M.name, M.department, M.major_id \
+                          FROM Major M")
   names = []
   for result in cursor:
     names.append(result)
