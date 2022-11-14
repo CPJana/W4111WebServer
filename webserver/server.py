@@ -185,7 +185,7 @@ def friendID(friendID):
   for result in cursor:
     friends.append(result)
 
-  context = dict(classes = classes, friends = friends)
+  context = dict(classes = shared_classes, friends = friends)
 
   return render_template("friend.html", **context)
 
