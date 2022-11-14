@@ -26,8 +26,8 @@ DB_SERVER = "w4111.cisxo09blonu.us-east-1.rds.amazonaws.com"
 
 DATABASEURI = "postgresql://"+DB_USER+":"+DB_PASSWORD+"@"+DB_SERVER+"/proj1part2"
 
+CURRENT_SEMESTER = "FA_2022"
 
-#
 # This line creates a database engine that knows how to connect to the URI above
 #
 engine = create_engine(DATABASEURI)
@@ -205,6 +205,7 @@ def majors():
   context = dict(data = names)
   return render_template("majors.html", **context)
 
+
 @app.route('/major/<majorID>/')
 def majorID(majorID):
 
@@ -219,6 +220,7 @@ def majorID(majorID):
 
   context = dict(data = fufill_courses)
   return render_template("major.html", **context)
+
 
 @app.route('/courses/')
 def courses():
@@ -235,6 +237,7 @@ def courses():
   context = dict(data = names)
   return render_template("courses.html", **context)
 
+
 @app.route('/course/<courseID>/')
 def courseID(courseID):
 
@@ -243,7 +246,7 @@ def courseID(courseID):
   
   cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
                           FROM Class Cl, Course Co, Professor P, Timeslot T  \
-                          WHERE Cl.course_id=%s AND Cl.professor_id = P.professor_id AND T.timeslot_id = Cl.timeslot_id", courseID)
+                          WHERE Cl.semester_id = %s AND Cl.course_id=%s AND Cl.professor_id = P.professor_id AND T.timeslot_id = Cl.timeslot_id", CURRENT_SEMESTER, courseID)
   classes = []
   for result in cursor:
     classes.append(result)
@@ -252,21 +255,24 @@ def courseID(courseID):
   context = dict(classes = classes)
   return render_template("course.html", **context)
 
+
 @app.route('/classes/')
 def classes():
 
   if not session.get('logged_in'):
     return render_template('login.html')
   
-  cursor = g.conn.execute("SELECT C.class_id \
-                          FROM Class C")
+  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week \
+                          FROM Class Cl, Course Co, Professor P, Timeslot T\
+                          WHERE Cl.semester_id = %s AND Cl.course_id = Co.course_id AND Cl.professor_id = P.professor_id AND Cl.timeslot_id = T.timeslot_id", CURRENT_SEMESTER)
   classes = []
   for result in cursor:
     classes.append(result)
   cursor.close()
 
-  context = dict(data = classes)
+  context = dict(data = classes, semester = CURRENT_SEMESTER)
   return render_template("classes.html", **context)
+
 
 @app.route('/professors/')
 def professors():
@@ -317,6 +323,7 @@ def do_admin_login():
     
   flash('You are not logged in.')
   return home()
+
 
 @app.route("/logout")
 def logout():
