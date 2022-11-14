@@ -2,26 +2,32 @@
 
 {% block content %}
 
+<div class = "page-header">
+    Your Friends
+</div>
 <div class="row" style = "margin-top: 30px;">
+
     <div class="col-md-5">
+        
 
-        <div class = "page-header">
-            Your Friends
+        <div class = "row">
+            <div class = "col-md-12 class-list">
+                {% for result in data %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('friendID', friendID=result['email'])}}" >
+                        <div class="class-preview">
+                            {{result["email"]}}<br>
+                            {{result["first_name"]}}<br>
+                            {{result["last_name"]}}<br>
+                            {{result["graduating_class"]}}<br>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>  
         </div>
-
-        {% for result in data %}
-            <div class="row">
-                <a class="no-underline" href = "{{url_for('friendID', friendID=result['email'])}}" >
-                    <div class = "friend-preview">
-                        {{result["email"]}}
-                        {{result["first_name"]}}
-                        {{result["last_name"]}}
-                        {{result["graduating_class"]}}
-                    </div>
-                </a>
-            </div>
-        {% endfor %}
     </div>
+    
     <div class="col-md-7">
         <div class="row">
             <form method="POST" action="/add">

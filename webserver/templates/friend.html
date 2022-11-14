@@ -7,16 +7,16 @@
     <!-- Top banner with class name and professor -->
     <div class="col-md-12">
         <div class="row">
-            <div class = "col-md-6 page-header">
-                {{friends[0]["first_name"]}}
+            <div class = "col-md-12">
+                <span style="font-size: 40px;">{{friends[0]["first_name"]}} {{friends[0]["last_name"]}}</span><br>
+                <span>{{friends[0]["email"]}}</span>
+                <hr>
             </div>
-        </div>
-        <div class="row">
-            {{friends[0]["email"]}}
         </div>
     </div>
     <!-- Shared classes -->
     <div class="col-md-6">
+        Shared classes with {{friends[0]["first_name"]}}
         {% if classes|length > 0 %}
             {% for class in classes %}
                 <div class="row">
@@ -34,7 +34,7 @@
                 </div>
             {% endfor %}
         {% else %}
-            No shared classes with {{friends[0]["first_name"]}}.
+            No shared classes with {{friends[0]["first_name"]}} during {{semester}}.
         {%endif%}
     </div>
     <!-- Majors fulfilled by the class -->
