@@ -16,18 +16,26 @@
         <div class="row">
             <div class = "col-md-12">
                 <div class = "padded-grey-box">
-                    Course ID: {{classes[0]["course_id"]}}<br>
-                    Time: {{classes[0]["start_time"]}} to {{classes[0]["end_time"]}}<br>
-                    Days: {{classes[0]["days_of_week"]}} <br>
-                    Semester: {{classes[0]["semester_id"]}}
-                    <button type="button" class="btn btn-primary" href = "{{url_for('/add/classID',classID=classes[0]['class_id'])}}">Add</button>
-                </div>
-                <div>
-                    {% if user_stat|length > 0 %}
-                <button type="button" class="btn btn-warning" href = "{{url_for('/drop/classID',classID=classes[0]['class_id'])}}">Drop</button>
-                    {%else%}
-                <button type="button" class="btn btn-primary" href = "{{url_for('/add/classID',classID=classes[0]['class_id'])}}">Add</button>
-                    {%endif%}
+                    <div class="col-md-8">
+                        Course ID: {{classes[0]["course_id"]}}<br>
+                        Time: {{classes[0]["start_time"]}} to {{classes[0]["end_time"]}}<br>
+                        Days: {{classes[0]["days_of_week"]}} <br>
+                        Semester: {{classes[0]["semester_id"]}}
+                    </div>
+                    <div class="col-md-4">
+                        {% if user_stat|length > 0 %}
+                            <button method="POST" action="/dropClass">
+                                <p><input class_id={{classes[0]["class_id"]}}></p>
+                            Drop</button>
+                            <!--<a  class="btn btn-danger" href = "{{url_for('dropClass')}}">Drop</a>-->
+                        {%else%}
+                            <button method="POST" action="/dropClass">
+                                <p><input class_id={{classes[0]["class_id"]}}></p>
+                            Add</button>
+                            <!--<a type="button" class="btn btn-primary" href = "{{url_for('addClass')}}">Add</a>-->
+                        {%endif%}
+                    </div>
+
                 </div>
             </div>
             

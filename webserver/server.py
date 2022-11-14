@@ -401,28 +401,28 @@ def professorID(professorID):
 #   g.conn.execute(text(cmd), name1 = name, name2 = name);
 #   return redirect('/')
 
-@app.route('/add/<addClass>', methods=['POST'])
-def addClass(addClassID):
+@app.route('/addClass/', methods=['POST'])
+def addClass():
 
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  #name = request.form['name']
-  #print(name)
+  addClassID = request.form['class_id']
+  print(addClassID)
   cmd = ('INSERT INTO Registers(email, class_id, on_waitlist) VALUES (:email, :addClassID, false)');
   g.conn.execute(text(cmd), email = session['email'], addClassID = addClassID);
   return redirect('/')
 
-@app.route('/drop/<classID>', methods=['POST'])
-def dropClass(classID):
+@app.route('/dropClass/', methods=['POST'])
+def dropClass():
 
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  #name = request.form['name']
+  dropClassID = request.form['class_id']
   #print(name)
-  cmd = ('DELETE FROM Registers R WHERE R.email=(:email) AND R.class_id=(:classID)');
-  g.conn.execute(text(cmd), email = session['email'], classID = classID);
+  cmd = ('DELETE FROM Registers R WHERE R.email=(:email) AND R.class_id=(:dropClassID)');
+  g.conn.execute(text(cmd), email = session['email'], dropClassID = dropClassID);
   return redirect('/')
 
 @app.route('/login/', methods=['POST'])
