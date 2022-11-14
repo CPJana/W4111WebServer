@@ -149,7 +149,9 @@ def friends():
   if not session.get('logged_in'):
     return render_template('login.html')
   
-  cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name, S.graduating_class FROM Befriends B, Student S WHERE B.email1 = %s AND S.email=B.email2", session['email'])
+  cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name, S.graduating_class \
+                          FROM Befriends B, Student S \
+                          WHERE (B.email1 = %s AND S.email=B.email2) OR (B.email2 = %s AND S.email=B.email1)", session['email'], session['email'])
   names = []
   for result in cursor:
     names.append(result)
@@ -167,26 +169,27 @@ def friendID(friendID):
 
   cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R\
-                          WHERE R.email=%s AND Cl.class_id IN (SELECT R.class_id FROM Registers R, Befriends B WHERE B.email1=%s AND B.email2=%s AND R.email=%s) AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
-                          session['email'], session['email'], friendID, friendID)
+                          WHERE R.email=%s AND Cl.class_id IN \
+                          (SELECT R.class_id FROM Registers R, Befriends B WHERE (B.email1=%s AND B.email2=%s AND R.email=%s) \
+                          OR (B.email1=%s AND B.email2=%s AND R.email=%s)) \
+                          AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
+                          session['email'], session['email'], friendID, friendID, friendID, session['email'], friendID)
   
 
   shared_classes = []
   for result in cursor:
     shared_classes.append(result)
-
-  # cursor = g.conn.execute("SELECT S.first_name, S.last_name\
-  #                         FROM Student S, Befriends B \
-  #                         WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 = %s) OR \
-  #                           (R.email = B.email2 AND B.email1 = %s))", classId, USER_ID, USER_ID)
+  print(shared_classes)
 
   cursor = g.conn.execute("SELECT S.first_name, S.last_name \
-                          FROM Befriends B, Student S WHERE B.email1 = %s AND B.email2=%s AND S.email=B.email2", session['email'], friendID)
+                          FROM Befriends B, Student S\
+                          WHERE (B.email1 = %s AND B.email2=%s AND S.email=B.email2) \
+                          OR (B.email1 = %s AND B.email2=%s AND S.email=B.email1)", session['email'], friendID, friendID, session['email'])
   friends = []
   for result in cursor:
     friends.append(result)
-
-  context = dict(classes = classes, friends = friends)
+  print(friends)
+  context = dict(classes = shared_classes, friends = friends)
 
   return render_template("friend.html", **context)
 
