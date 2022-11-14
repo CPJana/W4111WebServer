@@ -8,27 +8,20 @@
         <div class = "page-header">
             Your Classes
         </div>
-        
-        {% for semester in semesters %}
-            {{semester["semester_id"]}}<br>
-            {% for result in classes %}
-                {% if result["semester_id"]==semester["semester_id"] %}
-                    <div class="row">
-                        <a class="no-underline"href = "{{url_for('classID', classID=result['class_id'])}}" >
-                            <div class="class-preview">
-                                {{result["course_name"]}} <br>
-                                {{result["course_id"]}} <br>
-                                {{result["semester_id"]}} <br>
-                                {{result["professor_name"]}} <br>
-                                {{result["start_time"]}} <br>
-                                {{result["end_time"]}} <br>
-                                {{result["days_of_week"]}} <br>
-                            </div>
-                        </a>
-                    </div>
-                {% endif %}
+            {% for result in data %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('classID', classID=result['class_id'])}}" >
+                        <div class="class-preview">
+                            {{result["course_name"]}} <br>
+                            {{result["course_id"]}} <br>
+                            {{result["professor_name"]}} <br>
+                            {{result["start_time"]}} <br>
+                            {{result["end_time"]}} <br>
+                            {{result["days_of_week"]}} <br>
+                        </div>
+                    </a>
+                </div>
             {% endfor %}
-        {% endfor %}
     </div>
     <div class="col-md-7">
         <div class = "page-header">

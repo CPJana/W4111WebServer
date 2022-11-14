@@ -94,15 +94,15 @@ def schedule():
     return render_template('login.html')
 
   cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
-                          FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T  \
+                          FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T, Semester S  \
                           WHERE R.email = %s AND R.class_id = Cl.class_id AND Cl.professor_id = P.professor_id AND Cl.course_id = Co.course_id \
-                            AND T.timeslot_id = Cl.timeslot_id", 
-                          session['email'])
+                          AND T.timeslot_id = Cl.timeslot_id AND S.semester_id=%s", 
+                          session['email'], CURRENT_SEMESTER)
   classes = []
   for result in cursor:
     classes.append(result)
   cursor.close()
-
+  
   context = dict(data = classes)
   return render_template("schedule.html", **context)
 
@@ -175,7 +175,6 @@ def friendID(friendID):
                           AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
                           session['email'], session['email'], friendID, friendID, friendID, session['email'], friendID)
   
-
   shared_classes = []
   for result in cursor:
     shared_classes.append(result)
