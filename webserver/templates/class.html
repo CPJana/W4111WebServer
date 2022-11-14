@@ -20,8 +20,17 @@
                     Time: {{classes[0]["start_time"]}} to {{classes[0]["end_time"]}}<br>
                     Days: {{classes[0]["days_of_week"]}} <br>
                     Semester: {{classes[0]["semester_id"]}}
+                    <button type="button" class="btn btn-primary" href = "{{url_for('/add/classID',classID=classes[0]['class_id'])}}">Add</button>
+                </div>
+                <div>
+                    {% if user_stat|length > 0 %}
+                <button type="button" class="btn btn-warning" href = "{{url_for('/drop/classID',classID=classes[0]['class_id'])}}">Drop</button>
+                    {%else%}
+                <button type="button" class="btn btn-primary" href = "{{url_for('/add/classID',classID=classes[0]['class_id'])}}">Add</button>
+                    {%endif%}
                 </div>
             </div>
+            
             
         </div>
     </div>
