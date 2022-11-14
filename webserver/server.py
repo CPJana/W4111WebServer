@@ -6,7 +6,8 @@ from flask import Flask, request, render_template, g, redirect, Response, sessio
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
-app.secret_key = os.environ.get("SECRET_KEY")
+#app.secret_key = os.environ.get("SECRET_KEY")
+app.secret_key=b'\x02\x85\x06\x96c\x94Ra\x0b\xe0\xf1\x88IO\xa9\x91'
 
 # XXX: The Database URI should be in the format of: 
 #
@@ -89,7 +90,6 @@ def home():
 @app.route('/schedule/')
 def schedule():
 
-<<<<<<< HEAD
   if not session.get('logged_in'):
     return render_template('login.html')
 
@@ -98,45 +98,24 @@ def schedule():
                           WHERE R.email = %s AND R.class_id = Cl.class_id AND Cl.professor_id = P.professor_id AND Cl.course_id = Co.course_id \
                             AND T.timeslot_id = Cl.timeslot_id", 
                           session['email'])
-=======
-  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id, S.semester_id \
-                          FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T, Semester S  \
-                          WHERE R.email = %s AND R.class_id = Cl.class_id AND Cl.professor_id = P.professor_id AND \
-                          Cl.course_id = Co.course_id AND S.semester_id=Cl.semester_id AND T.timeslot_id = Cl.timeslot_id", 
-                          USER_ID)
->>>>>>> 1f0105d (Add registration status and semester information to class.)
   classes = []
   for result in cursor:
     classes.append(result)
   cursor.close()
 
-  cursor = g.conn.execute("SELECT S.semester_id \
-                          FROM Semester S")
-  semesters=[]
-  for result in cursor:
-    semesters.append(result)
-  cursor.close()
-
-  context = dict(classes = classes, semesters=semesters)
+  context = dict(data = classes)
   return render_template("schedule.html", **context)
 
 
 @app.route('/class/<classID>/')
 def classID(classID):
 
-<<<<<<< HEAD
   if not session.get('logged_in'):
     return render_template('login.html')
 
   cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T \
                           WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", int(classID))
-=======
-  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, S.semester_id\
-                          FROM Class Cl, Course Co, Professor P, Timeslot T, Semester S \
-                          WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id AND \
-                          T.timeslot_id = Cl.timeslot_id AND S.semester_id=Cl.semester_id", int(classID))
->>>>>>> 1f0105d (Add registration status and semester information to class.)
 
   classes = []
   for result in cursor:
@@ -153,29 +132,13 @@ def classID(classID):
 
   cursor = g.conn.execute("SELECT M.major_id, M.name, M.department\
                           FROM Class Cl, Course Co, Major M, Fulfills F \
-                          WHERE Cl.class_id = %s AND Cl.course_id = Co.course_id AND Co.course_id = F.course_id AND F.major_id = M.major_id", classID)
+                          WHERE Cl.class_id = %s AND Cl.course_id = CO.course_id AND Co.course_id = F.course_id AND F.major_id = M.major_id", classID)
 
   majors = []
   for result in cursor:
     majors.append(result)
 
-  cursor = g.conn.execute("SELECT R.prerequisite\
-                          FROM Requires R, Course Co, Class Cl \
-                          WHERE Cl.class_id=%s AND Co.course_id=Cl.course_id AND R.dependent_course=Co.course_id", classID)
-  prerequs=[]
-  for result in cursor:
-    prerequs.append(result)
-
-  cursor = g.conn.execute("SELECT R.email, R.on_waitlist\
-                          FROM Registers R, Class Cl \
-                          WHERE Cl.class_id=%s AND R.email=%s AND R.class_id=Cl.class_id", classID, USER_ID)
-
-  user_class_status=[]
-  for result in cursor:
-    user_class_status.append(result)
-
-
-  context = dict(classes = classes, friends = friends, majors = majors, prerequs=prerequs, user_stat=user_class_status)
+  context = dict(classes = classes, friends = friends, majors = majors)
 
   return render_template("class.html", **context)
 
@@ -199,25 +162,19 @@ def friends():
 @app.route('/friend/<friendID>/')
 def friendID(friendID):
 
-  cursor = g.conn.execute("SELECT R.class_id FROM Registers R WHERE R.email=%s", friendID)
-  friend_classes=[]
-  for result in cursor:
-    friend_classes.append(result)
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
+                          FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R\
+                          WHERE R.email=%s AND Cl.class_id IN (SELECT R.class_id FROM Registers R, Befriends B WHERE B.email1=%s AND B.email2=%s AND R.email=%s) AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
+                          session['email'], session['email'], friendID, friendID)
   
-  #print(friend_classes)
 
-  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, S.semester_id\
-                          FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R, Semester S\
-                          WHERE R.email=%s AND R.class_id IN (SELECT R.class_id FROM Registers R WHERE R.email=%s) AND R.class_id=Cl.class_id \
-                          AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id AND S.semester_id=Cl.semester_id \
-                          ORDER BY S.semester_id DESC", 
-                          USER_ID, friendID)
-
-  classes = []
+  shared_classes = []
   for result in cursor:
-    classes.append(result)
+    shared_classes.append(result)
 
-  print(classes)
   # cursor = g.conn.execute("SELECT S.first_name, S.last_name\
   #                         FROM Student S, Befriends B \
   #                         WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 = %s) OR \
@@ -229,7 +186,6 @@ def friendID(friendID):
   for result in cursor:
     friends.append(result)
 
-  print(friends)
   context = dict(classes = classes, friends = friends)
 
   return render_template("friend.html", **context)
@@ -264,12 +220,11 @@ def majorID(majorID):
   cursor.close()
 
   cursor = g.conn.execute("SELECT M.name, M.department, M.major_id FROM Major M WHERE M.major_id=%s", majorID)
-  major_info = []
+  search_major = []
   for result in cursor:
-    major_info.append(result)
+    search_major.append(result)
   cursor.close()
-
-  context = dict(search_major=major_info, courses = fufill_courses)
+  context = dict(courses = fufill_courses, search_major=search_major)
   return render_template("major.html", **context)
 
 
@@ -296,7 +251,7 @@ def courseID(courseID):
   if not session.get('logged_in'):
     return render_template('login.html')
   
-  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id\
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
                           FROM Class Cl, Course Co, Professor P, Timeslot T  \
                           WHERE Cl.semester_id = %s AND Cl.course_id=%s AND Cl.course_id = Co.course_id AND T.timeslot_id = Cl.timeslot_id AND P.professor_id = Cl.professor_id", CURRENT_SEMESTER, courseID)
   classes = []
@@ -362,7 +317,7 @@ def professorID(professorID):
                           WHERE Cl.semester_id = %s AND P.professor_id=%s AND Cl.course_id = Co.course_id AND T.timeslot_id = Cl.timeslot_id AND P.professor_id = Cl.professor_id", CURRENT_SEMESTER, professorID)
   classes = []
   for result in cursor:
-    classes.append(result)
+    class_taught.append(result)
   cursor.close()
 
   cursor = g.conn.execute("SELECT P.name, P.department \
