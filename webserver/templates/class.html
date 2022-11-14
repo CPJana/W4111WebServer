@@ -18,7 +18,8 @@
                 <div class = "padded-grey-box">
                     Course ID: {{classes[0]["course_id"]}}<br>
                     Time: {{classes[0]["start_time"]}} to {{classes[0]["end_time"]}}<br>
-                    Days: {{classes[0]["days_of_week"]}}
+                    Days: {{classes[0]["days_of_week"]}} <br>
+                    Semester: {{classes[0]["semester_id"]}}
                 </div>
             </div>
             
@@ -26,6 +27,19 @@
     </div>
     <!-- Friends in the class -->
     <div class="col-md-6">
+        <div class = "padded-grey-box">
+            Your Status:
+            <hr>
+            {% if user_stat|length > 0 %} 
+                {% if user_stat["on_waitlist"] %}
+                        Waitlisted<br>
+                {% else %}
+                        Registered<br>
+                {% endif %}
+            {% else %}
+                Not registered/waitlisted for this class.
+            {%endif%}
+        </div>
         <div class = "padded-grey-box">
             Friends in this Class
             <hr>

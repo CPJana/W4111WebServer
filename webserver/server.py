@@ -89,6 +89,7 @@ def home():
 @app.route('/schedule/')
 def schedule():
 
+<<<<<<< HEAD
   if not session.get('logged_in'):
     return render_template('login.html')
 
@@ -97,24 +98,45 @@ def schedule():
                           WHERE R.email = %s AND R.class_id = Cl.class_id AND Cl.professor_id = P.professor_id AND Cl.course_id = Co.course_id \
                             AND T.timeslot_id = Cl.timeslot_id", 
                           session['email'])
+=======
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id, S.semester_id \
+                          FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T, Semester S  \
+                          WHERE R.email = %s AND R.class_id = Cl.class_id AND Cl.professor_id = P.professor_id AND \
+                          Cl.course_id = Co.course_id AND S.semester_id=Cl.semester_id AND T.timeslot_id = Cl.timeslot_id", 
+                          USER_ID)
+>>>>>>> 1f0105d (Add registration status and semester information to class.)
   classes = []
   for result in cursor:
     classes.append(result)
   cursor.close()
 
-  context = dict(data = classes)
+  cursor = g.conn.execute("SELECT S.semester_id \
+                          FROM Semester S")
+  semesters=[]
+  for result in cursor:
+    semesters.append(result)
+  cursor.close()
+
+  context = dict(classes = classes, semesters=semesters)
   return render_template("schedule.html", **context)
 
 
 @app.route('/class/<classID>/')
 def classID(classID):
 
+<<<<<<< HEAD
   if not session.get('logged_in'):
     return render_template('login.html')
 
   cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T \
                           WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", int(classID))
+=======
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, S.semester_id\
+                          FROM Class Cl, Course Co, Professor P, Timeslot T, Semester S \
+                          WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id AND \
+                          T.timeslot_id = Cl.timeslot_id AND S.semester_id=Cl.semester_id", int(classID))
+>>>>>>> 1f0105d (Add registration status and semester information to class.)
 
   classes = []
   for result in cursor:
@@ -144,7 +166,16 @@ def classID(classID):
   for result in cursor:
     prerequs.append(result)
 
-  context = dict(classes = classes, friends = friends, majors = majors, prerequs=prerequs)
+  cursor = g.conn.execute("SELECT R.email, R.on_waitlist\
+                          FROM Registers R, Class Cl \
+                          WHERE Cl.class_id=%s AND R.email=%s AND R.class_id=Cl.class_id", classID, USER_ID)
+
+  user_class_status=[]
+  for result in cursor:
+    user_class_status.append(result)
+
+
+  context = dict(classes = classes, friends = friends, majors = majors, prerequs=prerequs, user_stat=user_class_status)
 
   return render_template("class.html", **context)
 
@@ -175,16 +206,18 @@ def friendID(friendID):
   
   #print(friend_classes)
 
-  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
-                          FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R\
-                          WHERE R.email=%s AND R.class_id IN (SELECT R.class_id FROM Registers R WHERE R.email=%s) AND R.class_id=Cl.class_id AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
+  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, S.semester_id\
+                          FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R, Semester S\
+                          WHERE R.email=%s AND R.class_id IN (SELECT R.class_id FROM Registers R WHERE R.email=%s) AND R.class_id=Cl.class_id \
+                          AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id AND S.semester_id=Cl.semester_id \
+                          ORDER BY S.semester_id DESC", 
                           USER_ID, friendID)
 
   classes = []
   for result in cursor:
     classes.append(result)
 
-  #print(shared_classes)
+  print(classes)
   # cursor = g.conn.execute("SELECT S.first_name, S.last_name\
   #                         FROM Student S, Befriends B \
   #                         WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 = %s) OR \
