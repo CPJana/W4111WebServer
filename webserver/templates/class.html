@@ -40,7 +40,7 @@
                     </div>
                 {% endfor %}
             {% else %}
-                No majors require this class.
+                None of your friends are taking this class.
             {%endif%}
         </div>
         
@@ -53,7 +53,7 @@
             {% if majors|length > 0 %} 
                 {% for major in majors %}
                     <div class="row">
-                        <a class="no-underline"href = "{{url_for('home')}}" >
+                        <a class="no-underline"href = "{{url_for('majorID', majorID = major['major_id'])}}" >
                             <div class="class-preview">
                                 Major: {{major["name"]}} <br> 
                                 Department: {{major["department"]}} <br>
@@ -62,7 +62,7 @@
                     </div>
                 {% endfor %}
             {% else %}
-                None of your friends are taking this class.
+                No majors require this class.
             {%endif%}
         </div>
 

@@ -2,21 +2,25 @@
 
 {% block content %}
 
-<h1>Courses Page</h1>
+<h1>Courses</h1>
 <div class="row">
     <div class="col-md-5">
-        Professors
-        {% for result in data %}
-            <div class="row">
-                <a class="no-underline"href = "{{url_for('courseID', courseID=result['course_id'])}}" >
-                    <div class = "courses-preview">
-                        {{result["name"]}}
-                        {{result["course_id"]}}
-                        {{result["department"]}}
-                    </div>
-                </a>
-            </div>
-        {% endfor %}
+        Available courses
+        <div class = "row">
+            <div class = "col-md-12 class-list">
+                {% for result in data %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('courseID', courseID=result['course_id'])}}" >
+                        <div class="class-preview">
+                            {{result["name"]}}<br>
+                            {{result["course_id"]}}<br>
+                            {{result["department"]}}<br>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>  
+        </div>
     </div>
     <div class="col-md-7">
         <div class="row">

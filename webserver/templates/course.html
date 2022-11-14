@@ -4,13 +4,16 @@
 
 <div class="row">
 
-    <!-- Top banner with class name and professor -->
     <div class="col-md-12">
         <div class="row">
-            <div class = "col-md-6 page-header">
-                {{classes["course_id"]}}
+            <div class = "col-md-12">
+                <span class="course-name">{{course["course_name"]}}</span>&nbsp;
+                <span class="professor-name">{{course["course_id"]}}</span>
             </div>
         </div>
+        <!-- Class info -->
+
+            
     </div>
     <!-- Shared classes -->
     <div class="col-md-6">
@@ -30,7 +33,7 @@
                 </div>
             {% endfor %}
         {% else %}
-            No classes listed for {{classes["course_id"]}}.
+            No classes listed for {{course["course_id"]}}.
         {%endif%}
     </div>
 </div>
