@@ -236,6 +236,52 @@ def majorID(majorID):
   context = dict(courses = fufill_courses, search_major=search_major)
   return render_template("major.html", **context)
 
+@app.route('/semesters/')
+def semesters():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT S.semester_id\
+                          FROM Semester S")
+  semesters = []
+  for result in cursor:
+    semesters.append(result)
+  cursor.close()
+
+  context = dict(semesters = semesters)
+  return render_template("semesters.html", **context)
+
+
+@app.route('/semester/<semesterID>/')
+def semesterID(semesterID):
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week \
+                          FROM Class Cl, Course Co, Professor P, Timeslot T \
+                          WHERE Co.course_id = Cl.course_id AND T.timeslot_id = Cl.timeslot_id AND P.professor_id = Cl.professor_id\
+                          AND Cl.semester_id = %s", 
+                          semesterID)
+  classes = []
+  for result in cursor:
+    classes.append(result)
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT S.semester_id, S.start_date, S.end_date \
+                          FROM Semester S \
+                          WHERE S.semester_id = %s \
+                          LIMIT 1", semesterID)
+  semester = None
+  for result in cursor:
+    semester = result
+    break
+  cursor.close()
+
+  context = dict(classes = classes, semester=semester)
+  return render_template("semester.html", **context)
+
 
 @app.route('/courses/')
 def courses():
@@ -351,8 +397,8 @@ def add():
 
   name = request.form['name']
   print(name)
-  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
-  g.conn.execute(text(cmd), name1 = name, name2 = name);
+  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)'
+  g.conn.execute(text(cmd), name1 = name, name2 = name)
   return redirect('/')
 
 
