@@ -408,7 +408,6 @@ def professorID(professorID):
   context = dict(classes = classes, professor = professor, semester = CURRENT_SEMESTER)
   return render_template("professor.html", **context)
 
-
 #-------------------- LOAD/SEARCH FUNCTIONS --------------------#
 
 @app.route('/loadCourse/', methods=['POST'])
@@ -435,6 +434,13 @@ def loadProfessor():
   print(load_url)
   return redirect(load_url)
 
+@app.route('/loadStudent/', methods=['POST'])
+def loadStudent():
+  name = request.form['name']
+  print(name)
+  load_url="/student/"+ str(name) +"/"
+  print(load_url)
+  return redirect(load_url)
 
 #-------------------- ADD DROP ROUTES --------------------#
 
