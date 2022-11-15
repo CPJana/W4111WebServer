@@ -6,29 +6,39 @@
 
     <!-- Top banner with class name and professor -->
     <div class="col-md-12">
-        <div class="row">
-            <div class = "col-md-6 page-header">
-                {{search_major[0]["name"]}}
-            </div>
+        <div class = "col-md-6 page-header">
+            {{major["name"]}}
         </div>
     </div>
+</div>
+
     <!-- Shared classes -->
-    <div class="col-md-6">
-        {% if courses|length > 0 %}
-            {% for course in courses %}
-                <div class="row">
-                    <a class="no-underline"href = "{{url_for('courseID', courseID=course['course_id'])}}" >
-                        <div class="class-preview">
-                            {{course["name"]}} <br>
-                            {{course["course_id"]}} <br>
-                            {{course["department"]}} <br>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        {% else %}
-            No courses listed for {{search_major[0]["name"]}}.
-        {%endif%}
+    <div class="row">
+        <div class="col-md-6">
+            Available courses for {{major["name"]}}<br>
+            {% if courses|length > 0 %}
+                {% for course in courses %}
+                    <div class="row">
+                        <a class="no-underline"href = "{{url_for('courseID', courseID=course['course_id'])}}" >
+                            <div class="class-preview">
+                                {{course["name"]}} <br>
+                                {{course["course_id"]}} <br>
+                                {{course["department"]}} <br>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                No courses listed for {{major["name"]}}.
+            {%endif%}
+        </div>
+        <div class = "col-md-6">
+            {% if isDeclared%}
+                You are currently declared for {{major["name"]}}
+            {% else %}
+                You are not declared for {{major["name"]}}
+            {% endif%}
+        </div>
     </div>
 </div>
 

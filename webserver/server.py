@@ -257,8 +257,6 @@ def classID(classID):
   friends = []
   for result in cursor:
     friends.append(result)
-  
-  print(friends)
 
   cursor = g.conn.execute("SELECT M.major_id, M.name, M.department\
                           FROM Class Cl, Course Co, Major M, Fulfills F \
@@ -275,7 +273,6 @@ def classID(classID):
   for result in cursor:
     user_stat.append(result)
 
-  print(user_stat)
   cursor = g.conn.execute("SELECT R.dependent_course\
                           FROM Requires R, Course Co, Class Cl \
                           WHERE Cl.class_id=%s AND Co.course_id=Cl.course_id AND R.prerequisite=Co.course_id", int(classID))
@@ -283,7 +280,6 @@ def classID(classID):
   for result in cursor:
     prerequs.append(result)
 
-  print(session['email'])
   context = dict(selected_class=selected_class, friends = friends, majors = majors, user_stat=user_stat, prerequs=prerequs)
 
   return render_template("class.html", **context)
@@ -372,11 +368,24 @@ def majorID(majorID):
   cursor.close()
 
   cursor = g.conn.execute("SELECT M.name, M.department, M.major_id FROM Major M WHERE M.major_id=%s", majorID)
-  search_major = []
+  major = None
   for result in cursor:
-    search_major.append(result)
+    major = result
+    break
   cursor.close()
-  context = dict(courses = fufill_courses, search_major=search_major)
+
+  cursor = g.conn.execute("SELECT EXISTS(\
+                              SELECT *\
+                              FROM Declares D \
+                              WHERE D.email = %s AND D.major_id = %s \
+                            )", session['email'], majorID)
+
+  isDeclared = None
+  for result in cursor:
+    isDeclared = result["exists"]
+    break   
+
+  context = dict(courses = fufill_courses, major=major, isDeclared=isDeclared)
   return render_template("major.html", **context)
 
 @app.route('/timeslot/<timeslotID>/')
