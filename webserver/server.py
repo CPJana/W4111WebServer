@@ -438,6 +438,34 @@ def removeFriend():
   g.conn.execute(text(cmd), user_email = session["email"], friend_email = student_email);
   return redirect(url_for("studentID", studentID = student_email))
 
+#LOAD/SEARCH FUNCTIONS
+@app.route('/loadCourse/', methods=['POST'])
+def loadCourse():
+  name = request.form['name']
+  print(name)
+  load_url="/course/"+ str(name) +"/"
+  print(load_url)
+  return redirect(load_url)
+
+#LOAD/SEARCH FUNCTIONS
+@app.route('/loadFriend/', methods=['POST'])
+def loadFriend():
+  name = request.form['name']
+  print(name)
+  load_url="/friend/"+ str(name) +"/"
+  print(load_url)
+  return redirect(load_url)
+
+#LOAD/SEARCH FUNCTIONS
+@app.route('/loadProfessor/', methods=['POST'])
+def loadProfessor():
+  name = request.form['name']
+  print(name)
+  load_url="/professor/"+ str(name) +"/"
+  print(load_url)
+  return redirect(load_url)
+
+#ADD FUNCTIONS
 @app.route('/addClass/', methods=['POST'])
 def addClass():
   print("HERE HERE HERE")

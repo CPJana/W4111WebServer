@@ -30,28 +30,22 @@
     </div>
     <div class="col-md-7">
         <div class="row">
-            <form method="POST" action="/add">
-                <p>Search classes by name: <input type="text" name="name"> <input type="submit" value="Add"></p>
-            </form>
-            <form method="POST" action="/add">
-                <p>Search classes by professor: <input type="text" name="name"> <input type="submit" value="Add"></p>
-            </form>
-            <form method="POST" action="/add">
-                <p>Search classes by friends: <input type="text" name="name"> <input type="submit" value="Add"></p>
-            </form>
-            <form method="POST" action="/add">
-                <p>Search classes by major: <input type="text" name="name"> <input type="submit" value="Add"></p>
+            <form method="POST" action="/loadCourse/">
+                <p>Search classes by Course ID: <input type="text" name="name"></p>
             </form>
         </div>
         <div class="row">
-            Search results go here
+            <form method="POST" action="/loadFriend/">
+                <p>Search classes by Friends's email: <input type="text" name="name"></p>
+            </form>
+        </div>
+        <div class="row">
+            <form method="POST" action="/loadProfessor/">
+                <p>Search classes by Prof ID: <input type="text" name="name"></p>
+            </form>
         </div>
     </div>
-  </div>
-
-  <div>
-    
-  </div>
+</div>
 
 
 
