@@ -97,16 +97,17 @@ def schedule():
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
-                          FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T, Semester S  \
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id, Cl.semester_id \
+                          FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T \
                           WHERE R.email = %s AND R.class_id = Cl.class_id AND Cl.professor_id = P.professor_id AND Cl.course_id = Co.course_id \
-                          AND T.timeslot_id = Cl.timeslot_id AND S.semester_id=%s", 
+                          AND T.timeslot_id = Cl.timeslot_id AND Cl.semester_id=%s", 
                           session['email'], CURRENT_SEMESTER)
   classes = []
   for result in cursor:
     classes.append(result)
   cursor.close()
 
+  print(classes)
   context = dict(data = classes)
   return render_template("schedule.html", **context)
 
@@ -222,9 +223,10 @@ def classID(classID):
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  cursor = g.conn.execute("SELECT Cl.class_id, Cl.semester_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
-                          FROM Class Cl, Course Co, Professor P, Timeslot T \
-                          WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", int(classID))
+  cursor = g.conn.execute("SELECT Cl.class_id, Cl.semester_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, S.semester_id\
+                          FROM Class Cl, Course Co, Professor P, Timeslot T, Semester S \
+                          WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id AND \
+                          T.timeslot_id = Cl.timeslot_id AND S.semester_id=Cl.semester_id", int(classID))
 
   selected_class = None
   for result in cursor:
@@ -233,16 +235,18 @@ def classID(classID):
 
   cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name\
                           FROM Class Cl, Registers R, Student S, Befriends B \
-                          WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 = %s) OR \
-                            (R.email = B.email2 AND B.email1 = %s))", classID, session['email'], session['email'])
+                          WHERE Cl.class_id = %s AND R.class_id = Cl.class_id AND R.email = S.email AND ((R.email = B.email1 AND B.email2 LIKE %s) OR \
+                          (R.email = B.email2 AND B.email1 LIKE %s))", int(classID), session['email'], session['email'])
 
   friends = []
   for result in cursor:
     friends.append(result)
+  
+  print(friends)
 
   cursor = g.conn.execute("SELECT M.major_id, M.name, M.department\
                           FROM Class Cl, Course Co, Major M, Fulfills F \
-                          WHERE Cl.class_id = %s AND Cl.course_id = CO.course_id AND Co.course_id = F.course_id AND F.major_id = M.major_id", classID)
+                          WHERE Cl.class_id = %s AND Cl.course_id = Co.course_id AND Co.course_id = F.course_id AND F.major_id = M.major_id", int(classID))
 
   majors = []
   for result in cursor:
@@ -250,12 +254,21 @@ def classID(classID):
   
   cursor = g.conn.execute("SELECT R.on_waitlist\
                           FROM Registers R\
-                          WHERE R.class_id=%s AND R.email=%s", classID, session['email'])
+                          WHERE R.class_id=%s AND R.email LIKE %s", int(classID), session['email'])
   user_stat=[]
   for result in cursor:
     user_stat.append(result)
 
-  context = dict(selected_class=selected_class, friends = friends, majors = majors, user_stat=user_stat)
+  print(user_stat)
+  cursor = g.conn.execute("SELECT R.dependent_course\
+                          FROM Requires R, Course Co, Class Cl \
+                          WHERE Cl.class_id=%s AND Co.course_id=Cl.course_id AND R.prerequisite=Co.course_id", int(classID))
+  prerequs=[]
+  for result in cursor:
+    prerequs.append(result)
+
+  print(session['email'])
+  context = dict(selected_class=selected_class, friends = friends, majors = majors, user_stat=user_stat, prerequs=prerequs)
 
   return render_template("class.html", **context)
 

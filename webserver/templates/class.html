@@ -78,9 +78,9 @@
             {% if prerequs|length > 0 %}
                 {% for course in prerequs %} 
                 <div class="row">
-                    <a class="no-underline"href = "{{url_for('courseID', courseID=course['prerequisite'])}}" >
+                    <a class="no-underline"href = "{{url_for('courseID', courseID=course['dependent_course'])}}" >
                         <div class="class-preview">
-                            {{course["prerequisite"]}} <br>  
+                            {{course["dependent_course"]}} <br>  
                         </div>
                     </a>
                 </div>
@@ -110,7 +110,6 @@
 
     </div>
 </div>
-
 
 
 {% endblock %}
