@@ -29,10 +29,22 @@
     </div>
     <div class="col-md-7">
         <div class="row">
-            <form method="POST" action="{{url_for(searchStudent)}}">
-                <input type="hidden" name = "source" value = "friends">
-                <p>Search for Student: <input type="text" name="name"></p>
-            </form>
+            <div class = "col-md-12">
+                {% with messages = get_flashed_messages() %}  
+                    {% if messages %}  
+                        {% for message in messages %}  
+                            <div>{{ message }}</div>
+                        {% endfor %}  
+                    {% endif %}  
+                {% endwith %} 
+                <br>
+                <form method="POST" action="{{url_for('searchStudent')}}">
+                    <input type="hidden" name = "source" value = "friends">
+                    <p>Search for Student: <input type="text" name="name"></p>
+                </form>
+            </div>
+            
+            
         </div>
     </div>  
 </div>

@@ -29,6 +29,14 @@
         </div>
     </div>
     <div class="col-md-7">
+        {% with messages = get_flashed_messages() %}  
+            {% if messages %}  
+                {% for message in messages %}  
+                    <div>{{ message }}</div>
+                {% endfor %}  
+            {% endif %}  
+        {% endwith %} 
+        <br>
         <div class="row">
             <form method="POST" action="/searchCourse/">
                 <input type="hidden" name = "source" value = "classes">

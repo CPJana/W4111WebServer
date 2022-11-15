@@ -36,22 +36,33 @@
             Search Classes
         </div>
         <div class="row">
-            <form method="POST" action="{{url_for('searchCourse')}}">
-                <input type="hidden" name = "source" value = "classes">
-                <p>Search classes by name: <input type="text" name="name"> <input type="submit" value="Add"></p>
-            </form>
-            <form method="POST" action="{{url_for('searchProfessor')}}/">
-                <input type="hidden" name = "source" value = "classes">
-                <p>Search classes by professor: <input type="text" name="name"> <input type="submit" value="Add"></p>
-            </form>
-            <form method="POST" action="/searchStudent/">
-                <input type="hidden" name = "source" value = "classes">
-                <p>Search classes by friends: <input type="text" name="name"> <input type="submit" value="Add"></p>
-            </form>
-            <form method="POST" action="/add">
-                <input type="hidden" name = "source" value = "classes">
-                <p>Search classes by major: <input type="text" name="name"> <input type="submit" value="Add"></p>
-            </form>
+            <div class = "col-md-12">
+                {% with messages = get_flashed_messages() %}  
+                    {% if messages %}  
+                        {% for message in messages %}  
+                            <div>{{ message }}</div>
+                        {% endfor %}  
+                    {% endif %}  
+                {% endwith %} 
+                <br>
+           
+                <form method="POST" action="{{url_for('searchCourse')}}">
+                    <input type="hidden" name = "source" value = "schedule">
+                    <p>Search classes by name: <input type="text" name="name"> <input type="submit" value="Add"></p>
+                </form>
+                <form method="POST" action="{{url_for('searchProfessor')}}/">
+                    <input type="hidden" name = "source" value = "schedule">
+                    <p>Search classes by professor: <input type="text" name="name"> <input type="submit" value="Add"></p>
+                </form>
+                <form method="POST" action="{{url_for('searchStudent')}}">
+                    <input type="hidden" name = "source" value = "schedule">
+                    <p>Search classes by friends: <input type="text" name="name"> <input type="submit" value="Add"></p>
+                </form>
+                <form method="POST" action="{{url_for('searchMajor')}}">
+                    <input type="hidden" name = "source" value = "schedule">
+                    <p>Search classes by major: <input type="text" name="name"> <input type="submit" value="Add"></p>
+                </form>
+            </div>
         </div>
         <div class="row">
             Search results go here

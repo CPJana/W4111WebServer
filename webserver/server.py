@@ -519,9 +519,27 @@ def searchStudent():
     flash('That student email does not exist.')
     return redirect(url_for(request.form["source"]))
 
+@app.route('/searchMajor/', methods=['POST'])
+def searchMajor():
+  major = request.form['name']
+
+  cursor = g.conn.execute("SELECT M.major_id \
+                          FROM Major M \
+                          WHERE M.name = %s", major)
+
+  exists = False
+  for result in cursor:
+    exists = True
+    major = result["major_id"]
+    break
+
+  if exists:
+    return redirect(url_for("majorID", majorID = major))
+  else:
+    flash('That major id or name does not exist.')
+    return redirect(url_for(request.form["source"]))
+
   
-
-
 #-------------------- ADD DROP ROUTES --------------------#
 
 @app.route('/addClass/', methods=['POST'])
