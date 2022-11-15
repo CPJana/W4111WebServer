@@ -97,10 +97,10 @@ def schedule():
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
-                          FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T, Semester S  \
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id, Cl.semester_id \
+                          FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T \
                           WHERE R.email = %s AND R.class_id = Cl.class_id AND Cl.professor_id = P.professor_id AND Cl.course_id = Co.course_id \
-                          AND T.timeslot_id = Cl.timeslot_id AND S.semester_id=%s", 
+                          AND T.timeslot_id = Cl.timeslot_id AND Cl.semester_id=%s", 
                           session['email'], CURRENT_SEMESTER)
   classes = []
   for result in cursor:
@@ -223,9 +223,10 @@ def classID(classID):
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  cursor = g.conn.execute("SELECT Cl.class_id, Cl.semester_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
-                          FROM Class Cl, Course Co, Professor P, Timeslot T \
-                          WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", int(classID))
+  cursor = g.conn.execute("SELECT Cl.class_id, Cl.semester_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, S.semester_id\
+                          FROM Class Cl, Course Co, Professor P, Timeslot T, Semester S \
+                          WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id AND \
+                          T.timeslot_id = Cl.timeslot_id AND S.semester_id=Cl.semester_id", int(classID))
 
   selected_class = None
   for result in cursor:
@@ -253,11 +254,12 @@ def classID(classID):
   
   cursor = g.conn.execute("SELECT R.on_waitlist\
                           FROM Registers R\
-                          WHERE R.class_id=%s AND R.email=%s", int(classID), session['email'])
+                          WHERE R.class_id=%s AND R.email LIKE %s", int(classID), session['email'])
   user_stat=[]
   for result in cursor:
     user_stat.append(result)
 
+  print(user_stat)
   cursor = g.conn.execute("SELECT R.dependent_course\
                           FROM Requires R, Course Co, Class Cl \
                           WHERE Cl.class_id=%s AND Co.course_id=Cl.course_id AND R.prerequisite=Co.course_id", int(classID))
