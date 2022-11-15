@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+
+    <!-- Top banner with class name and professor -->
+    <div class="col-md-12">
+        <div class="row">
+            <div class = "col-md-6">   
+                <div class = "page-header">
+                    {{semester["semester_id"]}}
+                </div>
+                <div>
+                    {{semester["start_date"]}} to {{semester["end_date"]}}
+                </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Offered classes -->
+    <div class="col-md-6">
+        Classes offered in {{semester["semester_id"]}}
+        {% if classes|length > 0 %}
+            {% for class in classes %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('classID', classID=class['class_id'])}}" >
+                        <div class="class-preview">
+                            {{class["course_name"]}} <br>
+                            {{class["course_id"]}} <br>
+                            {{class["professor_name"]}} <br>
+                            {{class["start_time"]}} <br>
+                            {{class["end_time"]}} <br>
+                            {{class["days_of_week"]}} <br>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            No courses listed for {{semester["semester_id"]}}.
+        {%endif%}
+    </div>
+</div>
+
+{% endblock %}

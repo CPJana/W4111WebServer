@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class = "page-header">
+    Semesters
+</div>
+<div class="row">
+    <div class="col-md-5">
+        
+
+        <div class = "row">
+            <div class = "col-md-12 class-list">
+                {% for result in semesters %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('semesterID', semesterID=result['semester_id'])}}" >
+                        <div class="class-preview">
+                            {{result["semester_id"]}}
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>  
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="row">
+            <form method="POST" action="/add">
+                <p>Search classes by name: <input type="text" name="name"> <input type="submit" value="Add"></p>
+            </form>
+            <form method="POST" action="/add">
+                <p>Search classes by professor: <input type="text" name="name"> <input type="submit" value="Add"></p>
+            </form>
+            <form method="POST" action="/add">
+                <p>Search classes by friends: <input type="text" name="name"> <input type="submit" value="Add"></p>
+            </form>
+            <form method="POST" action="/add">
+                <p>Search classes by major: <input type="text" name="name"> <input type="submit" value="Add"></p>
+            </form>
+        </div>
+        <div class="row">
+            Search results go here
+        </div>
+    </div>
+  </div>
+
+  <div>
+    
+  </div>
+
+
+
+{% endblock %}
