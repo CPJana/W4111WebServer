@@ -63,7 +63,7 @@
             {% if friends|length > 0 %} 
                 {% for friend in friends %}
                     <div class="row">
-                        <a class="no-underline"href = "{{url_for('friendID',friendID=friend['email'])}}" >
+                        <a class="no-underline"href = "{{url_for('studentID',studentID=friend['email'])}}" >
                             <div class="class-preview">
                                 {{friend["first_name"]}} {{friend["last_name"]}} <br>
                             </div>

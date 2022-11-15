@@ -1,7 +1,7 @@
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response, session, flash
+from flask import Flask, request, render_template, g, redirect, Response, session, flash, url_for
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -168,8 +168,8 @@ def friends():
   return render_template("friends.html", **context)
 
 
-@app.route('/friend/<friendID>/')
-def friendID(friendID):
+@app.route('/student/<studentID>/')
+def studentID(studentID):
 
   if not session.get('logged_in'):
     return render_template('login.html')
@@ -180,24 +180,37 @@ def friendID(friendID):
                           FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R\
                           WHERE R.email=%s AND R.class_id=Cl.class_id AND Co.course_id = Cl.course_id \
                           AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
-                          friendID)
+                          studentID)
   
   friends_classes = []
   for result in cursor:
     friends_classes.append(result)
   print(friends_classes)
   
-  cursor = g.conn.execute("SELECT S.first_name, S.last_name, S.email \
-                          FROM Befriends B, Student S\
-                          WHERE (B.email1 = %s AND B.email2=%s AND S.email=B.email2) \
-                          OR (B.email1 = %s AND B.email2=%s AND S.email=B.email1)", session['email'], friendID, friendID, session['email'])
-  friends = []
+  cursor = g.conn.execute("SELECT EXISTS(\
+                              SELECT S.first_name\
+                              FROM Befriends B, Student S\
+                              WHERE (B.email1 = %s AND B.email2=%s AND S.email=B.email2) \
+                              OR (B.email1 = %s AND B.email2=%s AND S.email=B.email1) \
+                            )", session['email'], studentID, studentID, session['email'])
+
+  isFriend = None
+  student = None
   for result in cursor:
-    friends.append(result)
+    isFriend = result["exists"]
+    break                     
 
-  context = dict(classes = friends_classes, friends = friends, semester = CURRENT_SEMESTER)
+  cursor = g.conn.execute("SELECT S.first_name, S.last_name, S.email \
+                          FROM Student S\
+                          WHERE S.email = %s", studentID)
+  student = None
+  for result in cursor:
+    student = result
+    break
 
-  return render_template("friend.html", **context)
+  context = dict(classes = friends_classes, student = student, isFriend = isFriend, semester = CURRENT_SEMESTER)
+
+  return render_template("student.html", **context)
 
 
 @app.route('/majors/')
@@ -388,19 +401,36 @@ def professorID(professorID):
   context = dict(classes = classes, professor = professor, semester = CURRENT_SEMESTER)
   return render_template("professor.html", **context)
 
+@app.route('/addfriend/', methods=['POST'])
+def addFriend():
 
-# Example of adding new data to the database
-# @app.route('/add/', methods=['POST'])
-# def add():
+  if not session.get('logged_in'):
+    return render_template('login.html')
 
-#   if not session.get('logged_in'):
-#     return render_template('login.html')
+  student_email = request.form['student']
 
-#   name = request.form['name']
-#   print(name)
-#   cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
-#   g.conn.execute(text(cmd), name1 = name, name2 = name);
-#   return redirect('/')
+  
+  cmd = "INSERT INTO Befriends VALUES ((:email1), (:email2))"
+
+  if session["email"] < student_email:
+    g.conn.execute(text(cmd), email1 = session["email"], email2 = student_email);
+  else:
+    g.conn.execute(text(cmd), email1 = student_email, email2 = session["email"]);
+
+  return redirect(url_for("studentID", studentID = student_email))
+
+@app.route('/removeFriend/', methods=['POST'])
+def removeFriend():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  student_email = request.form['student']
+  
+  cmd = "DELETE FROM Befriends B\
+        WHERE (B.email1 = (:user_email) AND B.email2=(:friend_email)) OR (B.email1 = (:friend_email) AND B.email2=(:user_email))"
+  g.conn.execute(text(cmd), user_email = session["email"], friend_email = student_email);
+  return redirect(url_for("studentID", studentID = student_email))
 
 @app.route('/addClass/', methods=['POST'])
 def addClass():
@@ -409,7 +439,6 @@ def addClass():
     return render_template('login.html')
 
   addClassID = request.form['class_id']
-  print(addClassID)
   cmd = ('INSERT INTO Registers(email, class_id, on_waitlist) VALUES (:email, :addClassID, false)');
   g.conn.execute(text(cmd), email = session['email'], addClassID = addClassID);
   return redirect('/')

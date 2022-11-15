@@ -14,7 +14,7 @@
             <div class = "col-md-12 class-list">
                 {% for result in data %}
                 <div class="row">
-                    <a class="no-underline"href = "{{url_for('friendID', friendID=result['email'])}}" >
+                    <a class="no-underline"href = "{{url_for('studentID', studentID=result['email'])}}" >
                         <div class="class-preview">
                             {{result["email"]}}<br>
                             {{result["first_name"]}}<br>
