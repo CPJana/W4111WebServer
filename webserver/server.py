@@ -391,7 +391,7 @@ def timeslotID(timeslotID):
                           LIMIT 1", timeslotID)
   timeslot = None
   for result in cursor:
-    timeslot=(result)
+    timeslot=result
     break
   cursor.close()
 
