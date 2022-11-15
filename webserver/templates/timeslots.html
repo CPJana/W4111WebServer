@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class = "page-header">
+    Timeslots
+</div>
+<div class="row">
+    <div class="col-md-5">  
+        <div class = "row">
+            <div class = "col-md-6 class-list">
+                {% for timeslot in timeslots %}
+                <div class="row">
+                    <a class="no-underline"href = "{{url_for('timeslotID', timeslotID=timeslot['timeslot_id'])}}" >
+                        <div class="class-preview">
+                            {{timeslot["start_time"]}}-{{timeslot["end_time"]}} | {{timeslot["days_of_week"]}}
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>  
+        </div>
+    </div>
+  </div>
+{% endblock %}

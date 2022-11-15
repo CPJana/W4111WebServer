@@ -146,6 +146,22 @@ def majors():
   context = dict(data = names)
   return render_template("majors.html", **context)
 
+@app.route('/timeslots/')
+def timeslots():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT T.timeslot_id, T.start_time, T.end_time, T.days_of_week\
+                          FROM Timeslot T")
+  timeslots = []
+  for result in cursor:
+    timeslots.append(result)
+  cursor.close()
+
+  context = dict(timeslots = timeslots)
+  return render_template("timeslots.html", **context)
+
 
 @app.route('/semesters/')
 def semesters():
@@ -363,6 +379,34 @@ def majorID(majorID):
   context = dict(courses = fufill_courses, search_major=search_major)
   return render_template("major.html", **context)
 
+@app.route('/timeslot/<timeslotID>/')
+def timeslotID(timeslotID):
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT T.timeslot_id, T.start_time, T.end_time, T.days_of_week \
+                          FROM Timeslot T \
+                          WHERE T.timeslot_id = %s \
+                          LIMIT 1", timeslotID)
+  timeslot = None
+  for result in cursor:
+    timeslot=(result)
+    break
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week \
+                          FROM Class Cl, Course Co, Professor P, Timeslot T \
+                          WHERE Co.course_id = Cl.course_id AND T.timeslot_id = %s AND P.professor_id = Cl.professor_id\
+                          AND Cl.semester_id = %s", 
+                          timeslotID, CURRENT_SEMESTER)
+  classes = []
+  for result in cursor:
+    classes.append(result)
+  cursor.close()
+
+  context = dict(classes = classes, semester=CURRENT_SEMESTER, timeslot=timeslot)
+  return render_template("timeslot.html", **context)
 
 @app.route('/semester/<semesterID>/')
 def semesterID(semesterID):
