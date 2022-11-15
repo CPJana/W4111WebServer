@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class = "page-header">
+    Your Profile
+</div>
+<div class="row">
+
+    <div class="col-md-5">
+        {{ student['first_name']}}
+        {{ student['last_name']}}
+        <div class = "row">
+            <div class = "col-md-12 class-list">
+                Major(s):
+                {% if major_info|length >0%}
+                    {% for major in major_info%}
+                        <a class="no-underline"href = "{{url_for('majorID', majorID=major['major_id'])}}" >
+                            {{major['name']}} | {{major['department']}} Department
+                        </a>
+                    {% endfor %}
+                {% endif %}
+                <div>
+                    <a class="no-underline"href = "{{url_for('friends')}}" >
+                        Friends: {{friend_count['friends']}}
+                    </a>
+                </div>
+            </div> 
+        </div>
+    </div>
+</div>
+
+{% endblock %}
