@@ -108,7 +108,7 @@ def schedule():
   cursor.close()
 
   print(classes)
-  context = dict(data = classes)
+  context = dict(classes = classes)
   return render_template("schedule.html", **context)
 
 
