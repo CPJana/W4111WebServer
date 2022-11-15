@@ -642,6 +642,35 @@ def addFriend():
   return redirect(url_for("studentID", studentID = student_email))
 
 
+@app.route('/dropMajor/', methods=['POST'])
+def dropMajor():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  major_id = request.form['major_id']
+  
+  cmd = "DELETE FROM Declares D\
+        WHERE D.email = (:user_email) AND D.major_id=(:major)"
+  g.conn.execute(text(cmd), user_email = session["email"], major = major_id);
+
+  return redirect(url_for("majorID", majorID = major_id))
+
+@app.route('/addMajor/', methods=['POST'])
+def addMajor():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  major_id = request.form['major_id']
+
+  cmd = "INSERT INTO Declares VALUES ((:email), (:major))"
+
+  g.conn.execute(text(cmd), email = session["email"], major = int(major_id))
+
+  return redirect(url_for("majorID", majorID = major_id))
+
+
 @app.route('/removeFriend/', methods=['POST'])
 def removeFriend():
 
@@ -655,7 +684,6 @@ def removeFriend():
   g.conn.execute(text(cmd), user_email = session["email"], friend_email = student_email);
   return redirect(url_for("studentID", studentID = student_email))
 
-
 @app.route('/switchSemester/', methods=['POST'])
 def switchSemester():
   global CURRENT_SEMESTER
@@ -664,11 +692,7 @@ def switchSemester():
     return render_template('login.html')
 
   CURRENT_SEMESTER = request.form['semester']
-  print("Working!")
-  
-  #cmd = "DELETE FROM Befriends B\
-        #WHERE (B.email1 = (:user_email) AND B.email2=(:friend_email)) OR (B.email1 = (:friend_email) AND B.email2=(:user_email))"
-  #g.conn.execute(text(cmd), user_email = session["email"], friend_email = student_email);
+
   return redirect(url_for("semesters"))
 
 

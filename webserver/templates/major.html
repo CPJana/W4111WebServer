@@ -35,8 +35,17 @@
         <div class = "col-md-6">
             {% if isDeclared%}
                 You are currently declared for {{major["name"]}}
+
+                <form method="POST" action="{{url_for('dropMajor')}}">
+                    <button type="submit" name="major_id" value="{{major['major_id']}}" class="btn btn-danger">Drop Major</button>
+                </form>
+
             {% else %}
                 You are not declared for {{major["name"]}}
+
+                <form method="POST" action="{{url_for('addMajor')}}">
+                    <button type="submit" name="major_id" value="{{major['major_id']}}" class="btn btn-success">Add Major</button>
+                </form>
             {% endif%}
         </div>
     </div>
