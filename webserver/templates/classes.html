@@ -30,17 +30,20 @@
     </div>
     <div class="col-md-7">
         <div class="row">
-            <form method="POST" action="/loadCourse/">
+            <form method="POST" action="/searchCourse/">
+                <input type="hidden" name = "source" value = "classes">
                 <p>Search classes by Course ID: <input type="text" name="name"></p>
             </form>
         </div>
         <div class="row">
-            <form method="POST" action="/loadFriend/">
+            <form method="POST" action="/searchStudent/">
+                <input type="hidden" name = "source" value = "classes">
                 <p>Search classes by Friends's email: <input type="text" name="name"></p>
             </form>
         </div>
         <div class="row">
-            <form method="POST" action="/loadProfessor/">
+            <form method="POST" action="/searchProfessor/">
+                <input type="hidden" name = "source" value = "classes">
                 <p>Search classes by Prof ID: <input type="text" name="name"></p>
             </form>
         </div>

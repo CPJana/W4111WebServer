@@ -29,7 +29,8 @@
     </div>
     <div class="col-md-7">
         <div class="row">
-            <form method="POST" action="/loadStudent/">
+            <form method="POST" action="{{url_for(searchStudent)}}">
+                <input type="hidden" name = "source" value = "friends">
                 <p>Search for Student: <input type="text" name="name"></p>
             </form>
         </div>

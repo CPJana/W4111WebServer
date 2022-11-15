@@ -446,37 +446,67 @@ def profile():
 
 #-------------------- LOAD/SEARCH FUNCTIONS --------------------#
 
-@app.route('/loadCourse/', methods=['POST'])
-def loadCourse():
-  name = request.form['name']
-  print(name)
-  load_url="/course/"+ str(name) +"/"
-  print(load_url)
-  return redirect(load_url)
+@app.route('/searchCourse/', methods=['POST'])
+def searchCourse():
+  courseID = request.form['name']
 
-@app.route('/loadFriend/', methods=['POST'])
-def loadFriend():
-  name = request.form['name']
-  print(name)
-  load_url="/friend/"+ str(name) +"/"
-  print(load_url)
-  return redirect(load_url)
+  cursor = g.conn.execute("SELECT * \
+                          FROM Course C \
+                          WHERE C.course_id = %s", courseID)
 
-@app.route('/loadProfessor/', methods=['POST'])
-def loadProfessor():
-  name = request.form['name']
-  print(name)
-  load_url="/professor/"+ str(name) +"/"
-  print(load_url)
-  return redirect(load_url)
+  exists = False
+  for result in cursor:
+    exists = True
+    break
 
-@app.route('/loadStudent/', methods=['POST'])
-def loadStudent():
-  name = request.form['name']
-  print(name)
-  load_url="/student/"+ str(name) +"/"
-  print(load_url)
-  return redirect(load_url)
+  if exists:
+    return redirect(url_for("courseID", courseID = courseID))
+  else:
+    flash('That course id does not exist.')
+    return redirect(url_for(request.form["source"]))
+
+
+@app.route('/searchProfessor/', methods=['POST'])
+def searchProfessor():
+  professorID = request.form['name']
+
+  cursor = g.conn.execute("SELECT * \
+                          FROM Professor P \
+                          WHERE P.professor_id = %s", professorID)
+
+  exists = False
+  for result in cursor:
+    exists = True
+    break
+
+  if exists:
+    return redirect(url_for("professorID", professorID = professorID))
+  else:
+    flash('That professor id does not exist.')
+    return redirect(url_for(request.form["source"]))
+
+  
+
+@app.route('/searchStudent/', methods=['POST'])
+def searchStudent():
+  studentID = request.form['name']
+
+  cursor = g.conn.execute("SELECT * \
+                          FROM Student S \
+                          WHERE S.email = %s", studentID)
+
+  exists = False
+  for result in cursor:
+    exists = True
+    break
+
+  if exists:
+    return redirect(url_for("studentID", studentID = studentID))
+  else:
+    flash('That student email does not exist.')
+    return redirect(url_for(request.form["source"]))
+
+  
 
 
 #-------------------- ADD DROP ROUTES --------------------#
