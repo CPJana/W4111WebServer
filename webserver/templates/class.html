@@ -8,8 +8,8 @@
     <div class="col-md-12">
         <div class="row">
             <div class = "col-md-12">
-                <span class="course-name">{{classes[0]["course_name"]}}</span>&nbsp;
-                <span class="professor-name">{{classes[0]["professor_name"]}}</span>
+                <span class="course-name">{{selected_class["course_name"]}}</span>&nbsp;
+                <span class="professor-name">{{selected_class["professor_name"]}}</span>
             </div>
         </div>
         <!-- Class info -->
@@ -17,15 +17,15 @@
             <div class = "col-md-12">
                 <div class = "padded-grey-box">
                     <div class="col-md-8">
-                        Course ID: {{classes[0]["course_id"]}}<br>
-                        Time: {{classes[0]["start_time"]}} to {{classes[0]["end_time"]}}<br>
-                        Days: {{classes[0]["days_of_week"]}} <br>
-                        Semester: {{classes[0]["semester_id"]}}
+                        Course ID: {{selected_class["course_id"]}}<br>
+                        Time: {{selected_class["start_time"]}} to {{selected_class["end_time"]}}<br>
+                        Days: {{selected_class["days_of_week"]}} <br>
+                        Semester: {{selected_class["semester_id"]}}
                     </div>
                     <div class="col-md-4">
                         {% if user_stat|length > 0 %}
                             <a type="button" method="POST" action = "{{url_for('dropClass')}}">Drop</a>
-                            <!--<a  class="btn btn-danger" href = "{{url_for('dropClass')}}  class_id={{classes[0]["class_id"]}}">Drop</a>-->
+                            <!--<a  class="btn btn-danger" href = "{{url_for('dropClass')}}  class_id={{selected_class["class_id"]}}">Drop</a>-->
                         {%else%}
                             <a type="button" method="POST" action = "{{url_for('addClass')}}">Add</a>
                             <!--<a type="button" class="btn btn-primary" href = "{{url_for('addClass')}}">Add</a>-->
@@ -46,12 +46,22 @@
             {% if user_stat|length > 0 %} 
                 {% if user_stat["on_waitlist"] %}
                         Waitlisted<br>
+                        <form method="POST" action="{{url_for('dropClass')}}">
+                            <button type="submit" name="selected_class" value="{{selected_class['class_id']}}" class="btn btn-danger">Drop Class</button>
+                        </form>
                 {% else %}
                         Registered<br>
+                        <form method="POST" action="{{url_for('dropClass')}}">
+                            <button type="submit" name="selected_class" value="{{selected_class['class_id']}}" class="btn btn-danger">Drop Class</button>
+                        </form>
                 {% endif %}
             {% else %}
                 Not registered/waitlisted for this class.
+                <form method="POST" action="{{url_for('addClass')}}">
+                    <button type="submit" name="selected_class" value="{{selected_class['class_id']}}" class="btn btn-success">Add Class</button>
+                </form>
             {%endif%}
+
         </div>
         <div class = "padded-grey-box">
             Friends in this Class

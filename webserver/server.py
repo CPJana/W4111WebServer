@@ -45,6 +45,7 @@ engine = create_engine(DATABASEURI)
 
 
 #-------------------- DATABASE SETUP / TEARDOWN --------------------#
+
 @app.before_request
 def before_request():
   """
@@ -70,6 +71,7 @@ def teardown_request(exception):
     g.conn.close()
   except Exception as e:
     pass
+
 
 #-------------------- MAIN PAGE ROUTES --------------------#
 
@@ -214,19 +216,21 @@ def professors():
 
 
 #-------------------- SPECIFIC ENTITY ROUTES --------------------#
+
 @app.route('/class/<classID>/')
 def classID(classID):
 
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
+  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T \
                           WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", int(classID))
 
-  classes = []
+  selected_class = None
   for result in cursor:
-    classes.append(result)
+    selected_class = result
+    break
 
   cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name\
                           FROM Class Cl, Registers R, Student S, Befriends B \
@@ -252,7 +256,7 @@ def classID(classID):
   for result in cursor:
     user_stat.append(result)
 
-  context = dict(classes = classes, friends = friends, majors = majors, user_stat=user_stat)
+  context = dict(selected_class=selected_class, friends = friends, majors = majors, user_stat=user_stat)
 
   return render_template("class.html", **context)
 
@@ -406,6 +410,7 @@ def professorID(professorID):
 
 
 #-------------------- LOAD/SEARCH FUNCTIONS --------------------#
+
 @app.route('/loadCourse/', methods=['POST'])
 def loadCourse():
   name = request.form['name']
@@ -430,17 +435,23 @@ def loadProfessor():
   print(load_url)
   return redirect(load_url)
 
+
 #-------------------- ADD DROP ROUTES --------------------#
+
 @app.route('/addClass/', methods=['POST'])
 def addClass():
-  print("HERE HERE HERE")
+
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  addClassID = request.form['class_id']
-  cmd = ('INSERT INTO Registers(email, class_id, on_waitlist) VALUES (:email, :addClassID, false)');
-  g.conn.execute(text(cmd), email = session['email'], addClassID = addClassID);
-  return redirect('/')
+  selected_class = request.form['selected_class']
+
+  cmd = "INSERT INTO Registers VALUES ((:email), (:classID), (:onWaitlist))"
+
+  g.conn.execute(text(cmd), email = session["email"], classID = selected_class, onWaitlist = False)
+
+  return redirect(url_for("classID", classID = selected_class))
+
 
 @app.route('/dropClass/', methods=['POST'])
 def dropClass():
@@ -448,13 +459,15 @@ def dropClass():
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  dropClassID = request.form['class_id']
-  #print(name)
-  cmd = ('DELETE FROM Registers R WHERE R.email=(:email) AND R.class_id=(:dropClassID)');
-  g.conn.execute(text(cmd), email = session['email'], dropClassID = dropClassID);
-  return redirect('/')
+  selected_class = request.form['selected_class']
+  
+  cmd = "DELETE FROM Registers R\
+        WHERE R.email = (:email) AND R.class_id = (:selected_class)"
+  g.conn.execute(text(cmd), email = session["email"], selected_class = selected_class)
+  return redirect(url_for("classID", classID = selected_class))
 
-@app.route('/addfriend/', methods=['POST'])
+
+@app.route('/addFriend/', methods=['POST'])
 def addFriend():
 
   if not session.get('logged_in'):
@@ -462,7 +475,6 @@ def addFriend():
 
   student_email = request.form['student']
 
-  
   cmd = "INSERT INTO Befriends VALUES ((:email1), (:email2))"
 
   if session["email"] < student_email:
@@ -471,6 +483,7 @@ def addFriend():
     g.conn.execute(text(cmd), email1 = student_email, email2 = session["email"]);
 
   return redirect(url_for("studentID", studentID = student_email))
+
 
 @app.route('/removeFriend/', methods=['POST'])
 def removeFriend():
@@ -484,7 +497,6 @@ def removeFriend():
         WHERE (B.email1 = (:user_email) AND B.email2=(:friend_email)) OR (B.email1 = (:friend_email) AND B.email2=(:user_email))"
   g.conn.execute(text(cmd), user_email = session["email"], friend_email = student_email);
   return redirect(url_for("studentID", studentID = student_email))
-
 
 
 #-------------------- LOGIN ROUTES --------------------#
@@ -515,6 +527,8 @@ def logout():
   session['logged_in'] = False
   return home()
 
+
+#-------------------- MAIN --------------------#
 
 if __name__ == "__main__":
   import click
