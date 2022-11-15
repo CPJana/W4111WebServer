@@ -400,13 +400,13 @@ def timeslotID(timeslotID):
                           LIMIT 1", timeslotID)
   timeslot = None
   for result in cursor:
-    timeslot=(result)
+    timeslot=result
     break
   cursor.close()
 
   cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week \
                           FROM Class Cl, Course Co, Professor P, Timeslot T \
-                          WHERE Co.course_id = Cl.course_id AND T.timeslot_id = %s AND P.professor_id = Cl.professor_id\
+                          WHERE Co.course_id = Cl.course_id AND T.timeslot_id = %s AND Cl.timeslot_id=T.timeslot_id AND P.professor_id = Cl.professor_id\
                           AND Cl.semester_id = %s", 
                           timeslotID, CURRENT_SEMESTER)
   classes = []
