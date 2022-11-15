@@ -8,45 +8,26 @@
 <div class="row">
 
     <div class="col-md-5">
-        Available classes for {{ semester }}
+        {{ student['first_name']}}
+        {{ student['last_name']}}
         <div class = "row">
             <div class = "col-md-12 class-list">
-                {% for result in data %}
-                <div class="row">
-                    <a class="no-underline"href = "{{url_for('classID', classID=result['class_id'])}}" >
-                        <div class="class-preview">
-                            {{result["course_name"]}} <br>
-                            {{result["course_id"]}} <br>
-                            {{result["professor_name"]}} <br>
-                            {{result["start_time"]}} <br>
-                            {{result["end_time"]}} <br>
-                            {{result["days_of_week"]}} <br>
-                        </div>
+                Major(s):
+                {% if major_info|length >0%}
+                    {% for major in major_info%}
+                        <a class="no-underline"href = "{{url_for('majorID', majorID=major['major_id'])}}" >
+                            {{major['name']}} | {{major['department']}} Department
+                        </a>
+                    {% endfor %}
+                {% endif %}
+                <div>
+                    <a class="no-underline"href = "{{url_for('friends')}}" >
+                        Friends: {{friend_count['friends']}}
                     </a>
                 </div>
-                {% endfor %}
-            </div>  
-        </div>
-    </div>
-    <div class="col-md-7">
-        <div class="row">
-            <form method="POST" action="/loadCourse/">
-                <p>Search classes by Course ID: <input type="text" name="name"></p>
-            </form>
-        </div>
-        <div class="row">
-            <form method="POST" action="/loadFriend/">
-                <p>Search classes by Friends's email: <input type="text" name="name"></p>
-            </form>
-        </div>
-        <div class="row">
-            <form method="POST" action="/loadProfessor/">
-                <p>Search classes by Prof ID: <input type="text" name="name"></p>
-            </form>
+            </div> 
         </div>
     </div>
 </div>
-
-
 
 {% endblock %}

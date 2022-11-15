@@ -407,6 +407,42 @@ def professorID(professorID):
   context = dict(classes = classes, professor = professor, semester = CURRENT_SEMESTER)
   return render_template("professor.html", **context)
 
+@app.route('/profile/')
+def profile():
+  
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  cursor = g.conn.execute("SELECT S.first_name, S.last_name, S.email, S.graduating_class \
+                          FROM Student S \
+                          WHERE S.email=%s", session['email'])
+  student=None
+  for result in cursor:
+    student = result
+    break
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT M.name, M.department, M.major_id \
+                          FROM Major M, Declares D \
+                          WHERE D.email=%s AND D.major_id=M.major_id", session['email'])
+    
+  major_info=[]
+  for result in cursor:
+    major_info.append(result)
+  cursor.close()
+
+  cursor = g.conn.execute("SELECT count(*) as friends \
+                          FROM Befriends B \
+                          WHERE (B.email1=%s) OR (B.email2=%s)", session['email'], session['email'])
+  friend_count=None
+  for result in cursor:
+    friend_count = result
+    break
+  cursor.close()
+
+  context = dict(student = student, major_info = major_info, friend_count = friend_count)
+  return render_template("profile.html", **context)
+
 
 #-------------------- LOAD/SEARCH FUNCTIONS --------------------#
 
