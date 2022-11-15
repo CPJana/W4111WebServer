@@ -44,6 +44,7 @@ engine = create_engine(DATABASEURI)
 
 
 
+#-------------------- DATABASE SETUP / TEARDOWN --------------------#
 @app.before_request
 def before_request():
   """
@@ -70,6 +71,7 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
+#-------------------- MAIN PAGE ROUTES --------------------#
 
 @app.route('/')
 def home():
@@ -107,6 +109,111 @@ def schedule():
   return render_template("schedule.html", **context)
 
 
+@app.route('/friends/')
+def friends():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name, S.graduating_class \
+                          FROM Befriends B, Student S \
+                          WHERE (B.email1 = %s AND S.email=B.email2) OR (B.email2 = %s AND S.email=B.email1)", session['email'], session['email'])
+  names = []
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+
+  context = dict(data = names)
+  return render_template("friends.html", **context)
+
+
+@app.route('/majors/')
+def majors():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT M.name, M.department, M.major_id \
+                          FROM Major M")
+  names = []
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+
+  context = dict(data = names)
+  return render_template("majors.html", **context)
+
+
+@app.route('/semesters/')
+def semesters():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT S.semester_id\
+                          FROM Semester S")
+  semesters = []
+  for result in cursor:
+    semesters.append(result)
+  cursor.close()
+
+  context = dict(semesters = semesters)
+  return render_template("semesters.html", **context)
+
+
+@app.route('/courses/')
+def courses():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT Co.name, Co.course_id, Co.department \
+                          FROM Course Co")
+  names = []
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+
+  context = dict(data = names)
+  return render_template("courses.html", **context)
+
+
+@app.route('/classes/')
+def classes():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week \
+                          FROM Class Cl, Course Co, Professor P, Timeslot T\
+                          WHERE Cl.semester_id = %s AND Cl.course_id = Co.course_id AND Cl.professor_id = P.professor_id AND Cl.timeslot_id = T.timeslot_id", CURRENT_SEMESTER)
+  classes = []
+  for result in cursor:
+    classes.append(result)
+  cursor.close()
+
+  context = dict(data = classes, semester = CURRENT_SEMESTER)
+  return render_template("classes.html", **context)
+
+
+@app.route('/professors/')
+def professors():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+  
+  cursor = g.conn.execute("SELECT P.name, P.professor_id, P.department \
+                          FROM Professor P")
+  names = []
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+
+  context = dict(data = names)
+  return render_template("professors.html", **context)
+
+
+#-------------------- SPECIFIC ENTITY ROUTES --------------------#
 @app.route('/class/<classID>/')
 def classID(classID):
 
@@ -150,32 +257,12 @@ def classID(classID):
   return render_template("class.html", **context)
 
 
-@app.route('/friends/')
-def friends():
-
-  if not session.get('logged_in'):
-    return render_template('login.html')
-  
-  cursor = g.conn.execute("SELECT S.email, S.first_name, S.last_name, S.graduating_class \
-                          FROM Befriends B, Student S \
-                          WHERE (B.email1 = %s AND S.email=B.email2) OR (B.email2 = %s AND S.email=B.email1)", session['email'], session['email'])
-  names = []
-  for result in cursor:
-    names.append(result)
-  cursor.close()
-
-  context = dict(data = names)
-  return render_template("friends.html", **context)
-
-
 @app.route('/student/<studentID>/')
 def studentID(studentID):
 
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  #(SELECT R.class_id FROM Registers R, Befriends B WHERE (B.email1=%s AND B.email2=%s AND R.email=%s) \
-  #                        OR (B.email1=%s AND B.email2=%s AND R.email=%s))
   cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R\
                           WHERE R.email=%s AND R.class_id=Cl.class_id AND Co.course_id = Cl.course_id \
@@ -213,21 +300,31 @@ def studentID(studentID):
   return render_template("student.html", **context)
 
 
-@app.route('/majors/')
-def majors():
+@app.route('/course/<courseID>/')
+def courseID(courseID):
 
   if not session.get('logged_in'):
     return render_template('login.html')
   
-  cursor = g.conn.execute("SELECT M.name, M.department, M.major_id \
-                          FROM Major M")
-  names = []
+  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
+                          FROM Class Cl, Course Co, Professor P, Timeslot T  \
+                          WHERE Cl.semester_id = %s AND Cl.course_id=%s AND Cl.course_id = Co.course_id AND T.timeslot_id = Cl.timeslot_id AND P.professor_id = Cl.professor_id", CURRENT_SEMESTER, courseID)
+  classes = []
   for result in cursor:
-    names.append(result)
+    classes.append(result)
   cursor.close()
 
-  context = dict(data = names)
-  return render_template("majors.html", **context)
+  cursor = g.conn.execute("SELECT Co.course_id, Co.name as course_name \
+                          FROM Course Co \
+                          WHERE Co.course_id=%s", courseID)
+  course = None
+  for result in cursor:
+    course = result
+    break
+  cursor.close()
+
+  context = dict(classes = classes, course = course)
+  return render_template("course.html", **context)
 
 
 @app.route('/major/<majorID>/')
@@ -249,22 +346,6 @@ def majorID(majorID):
   cursor.close()
   context = dict(courses = fufill_courses, search_major=search_major)
   return render_template("major.html", **context)
-
-@app.route('/semesters/')
-def semesters():
-
-  if not session.get('logged_in'):
-    return render_template('login.html')
-  
-  cursor = g.conn.execute("SELECT S.semester_id\
-                          FROM Semester S")
-  semesters = []
-  for result in cursor:
-    semesters.append(result)
-  cursor.close()
-
-  context = dict(semesters = semesters)
-  return render_template("semesters.html", **context)
 
 
 @app.route('/semester/<semesterID>/')
@@ -297,84 +378,6 @@ def semesterID(semesterID):
   return render_template("semester.html", **context)
 
 
-@app.route('/courses/')
-def courses():
-
-  if not session.get('logged_in'):
-    return render_template('login.html')
-  
-  cursor = g.conn.execute("SELECT Co.name, Co.course_id, Co.department \
-                          FROM Course Co")
-  names = []
-  for result in cursor:
-    names.append(result)
-  cursor.close()
-
-  context = dict(data = names)
-  return render_template("courses.html", **context)
-
-
-@app.route('/course/<courseID>/')
-def courseID(courseID):
-
-  if not session.get('logged_in'):
-    return render_template('login.html')
-  
-  cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id \
-                          FROM Class Cl, Course Co, Professor P, Timeslot T  \
-                          WHERE Cl.semester_id = %s AND Cl.course_id=%s AND Cl.course_id = Co.course_id AND T.timeslot_id = Cl.timeslot_id AND P.professor_id = Cl.professor_id", CURRENT_SEMESTER, courseID)
-  classes = []
-  for result in cursor:
-    classes.append(result)
-  cursor.close()
-
-  cursor = g.conn.execute("SELECT Co.course_id, Co.name as course_name \
-                          FROM Course Co \
-                          WHERE Co.course_id=%s", courseID)
-  course = None
-  for result in cursor:
-    course = result
-    break
-  cursor.close()
-
-  context = dict(classes = classes, course = course)
-  return render_template("course.html", **context)
-
-
-@app.route('/classes/')
-def classes():
-
-  if not session.get('logged_in'):
-    return render_template('login.html')
-  
-  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week \
-                          FROM Class Cl, Course Co, Professor P, Timeslot T\
-                          WHERE Cl.semester_id = %s AND Cl.course_id = Co.course_id AND Cl.professor_id = P.professor_id AND Cl.timeslot_id = T.timeslot_id", CURRENT_SEMESTER)
-  classes = []
-  for result in cursor:
-    classes.append(result)
-  cursor.close()
-
-  context = dict(data = classes, semester = CURRENT_SEMESTER)
-  return render_template("classes.html", **context)
-
-
-@app.route('/professors/')
-def professors():
-
-  if not session.get('logged_in'):
-    return render_template('login.html')
-  
-  cursor = g.conn.execute("SELECT P.name, P.professor_id, P.department \
-                          FROM Professor P")
-  names = []
-  for result in cursor:
-    names.append(result)
-  cursor.close()
-
-  context = dict(data = names)
-  return render_template("professors.html", **context)
-
 @app.route('/professor/<professorID>/')
 def professorID(professorID):
 
@@ -401,44 +404,8 @@ def professorID(professorID):
   context = dict(classes = classes, professor = professor, semester = CURRENT_SEMESTER)
   return render_template("professor.html", **context)
 
-<<<<<<< HEAD
-@app.route('/addfriend/', methods=['POST'])
-def addFriend():
 
-  if not session.get('logged_in'):
-    return render_template('login.html')
-
-  student_email = request.form['student']
-
-  
-  cmd = "INSERT INTO Befriends VALUES ((:email1), (:email2))"
-
-  if session["email"] < student_email:
-    g.conn.execute(text(cmd), email1 = session["email"], email2 = student_email);
-  else:
-    g.conn.execute(text(cmd), email1 = student_email, email2 = session["email"]);
-
-  return redirect(url_for("studentID", studentID = student_email))
-=======
-# Example of adding new data to the database
-# @app.route('/add/', methods=['POST'])
-# def add():
->>>>>>> 08700a6 (Change server + class for buttons)
-
-@app.route('/removeFriend/', methods=['POST'])
-def removeFriend():
-
-  if not session.get('logged_in'):
-    return render_template('login.html')
-
-  student_email = request.form['student']
-  
-  cmd = "DELETE FROM Befriends B\
-        WHERE (B.email1 = (:user_email) AND B.email2=(:friend_email)) OR (B.email1 = (:friend_email) AND B.email2=(:user_email))"
-  g.conn.execute(text(cmd), user_email = session["email"], friend_email = student_email);
-  return redirect(url_for("studentID", studentID = student_email))
-
-#LOAD/SEARCH FUNCTIONS
+#-------------------- LOAD/SEARCH FUNCTIONS --------------------#
 @app.route('/loadCourse/', methods=['POST'])
 def loadCourse():
   name = request.form['name']
@@ -447,7 +414,6 @@ def loadCourse():
   print(load_url)
   return redirect(load_url)
 
-#LOAD/SEARCH FUNCTIONS
 @app.route('/loadFriend/', methods=['POST'])
 def loadFriend():
   name = request.form['name']
@@ -456,7 +422,6 @@ def loadFriend():
   print(load_url)
   return redirect(load_url)
 
-#LOAD/SEARCH FUNCTIONS
 @app.route('/loadProfessor/', methods=['POST'])
 def loadProfessor():
   name = request.form['name']
@@ -465,7 +430,7 @@ def loadProfessor():
   print(load_url)
   return redirect(load_url)
 
-#ADD FUNCTIONS
+#-------------------- ADD DROP ROUTES --------------------#
 @app.route('/addClass/', methods=['POST'])
 def addClass():
   print("HERE HERE HERE")
@@ -488,6 +453,41 @@ def dropClass():
   cmd = ('DELETE FROM Registers R WHERE R.email=(:email) AND R.class_id=(:dropClassID)');
   g.conn.execute(text(cmd), email = session['email'], dropClassID = dropClassID);
   return redirect('/')
+
+@app.route('/addfriend/', methods=['POST'])
+def addFriend():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  student_email = request.form['student']
+
+  
+  cmd = "INSERT INTO Befriends VALUES ((:email1), (:email2))"
+
+  if session["email"] < student_email:
+    g.conn.execute(text(cmd), email1 = session["email"], email2 = student_email);
+  else:
+    g.conn.execute(text(cmd), email1 = student_email, email2 = session["email"]);
+
+  return redirect(url_for("studentID", studentID = student_email))
+
+@app.route('/removeFriend/', methods=['POST'])
+def removeFriend():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  student_email = request.form['student']
+  
+  cmd = "DELETE FROM Befriends B\
+        WHERE (B.email1 = (:user_email) AND B.email2=(:friend_email)) OR (B.email1 = (:friend_email) AND B.email2=(:user_email))"
+  g.conn.execute(text(cmd), user_email = session["email"], friend_email = student_email);
+  return redirect(url_for("studentID", studentID = student_email))
+
+
+
+#-------------------- LOGIN ROUTES --------------------#
 
 @app.route('/login/', methods=['POST'])
 def do_admin_login():
