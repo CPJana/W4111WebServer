@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class = "page-header">
+    ({{timeslot["start_time"]}}) to ({{timeslot["end_time"]}}) | {{timeslot["days_of_week"]}}
+</div>
+<div class="row">
+    <div class="col-md-5">  
+        <div class = "row">
+            <div class = "col-md-6 class-list">
+                {% if classes | length >0%}
+                    {% for class in classes %}
+                    <div class="row">
+                        <a class="no-underline"href = "{{url_for('classID', classID=class['class_id'])}}" >
+                            <div class="class-preview">
+                                {{class["course_name"]}} <br>
+                                {{class["course_id"]}} <br>
+                                {{class["semester_id"]}} <br>
+                                {{class["professor_name"]}} <br>
+                                {{class["start_time"]}} <br>
+                                {{class["end_time"]}} <br>
+                                {{class["days_of_week"]}} <br>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    No classes at given timeslot for {{semester['semester_id']}}.
+                {% endif %}
+            </div>  
+        </div>
+    </div>
+</div>
+{% endblock %}
