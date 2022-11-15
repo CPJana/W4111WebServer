@@ -159,7 +159,7 @@ def semesters():
     semesters.append(result)
   cursor.close()
 
-  context = dict(semesters = semesters)
+  context = dict(semesters = semesters, current_semester = CURRENT_SEMESTER)
   return render_template("semesters.html", **context)
 
 
@@ -213,7 +213,6 @@ def professors():
 
   context = dict(data = names)
   return render_template("professors.html", **context)
-
 
 #-------------------- SPECIFIC ENTITY ROUTES --------------------#
 
@@ -408,6 +407,7 @@ def professorID(professorID):
   context = dict(classes = classes, professor = professor, semester = CURRENT_SEMESTER)
   return render_template("professor.html", **context)
 
+
 #-------------------- LOAD/SEARCH FUNCTIONS --------------------#
 
 @app.route('/loadCourse/', methods=['POST'])
@@ -441,6 +441,7 @@ def loadStudent():
   load_url="/student/"+ str(name) +"/"
   print(load_url)
   return redirect(load_url)
+
 
 #-------------------- ADD DROP ROUTES --------------------#
 
@@ -503,6 +504,22 @@ def removeFriend():
         WHERE (B.email1 = (:user_email) AND B.email2=(:friend_email)) OR (B.email1 = (:friend_email) AND B.email2=(:user_email))"
   g.conn.execute(text(cmd), user_email = session["email"], friend_email = student_email);
   return redirect(url_for("studentID", studentID = student_email))
+
+
+@app.route('/switchSemester/', methods=['POST'])
+def switchSemester():
+  global CURRENT_SEMESTER
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  CURRENT_SEMESTER = request.form['semester']
+  print("Working!")
+  
+  #cmd = "DELETE FROM Befriends B\
+        #WHERE (B.email1 = (:user_email) AND B.email2=(:friend_email)) OR (B.email1 = (:friend_email) AND B.email2=(:user_email))"
+  #g.conn.execute(text(cmd), user_email = session["email"], friend_email = student_email);
+  return redirect(url_for("semesters"))
 
 
 #-------------------- LOGIN ROUTES --------------------#

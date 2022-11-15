@@ -6,22 +6,38 @@
     Semesters
 </div>
 <div class="row">
-    <div class="col-md-5">
-        
-
+    <div class="col-md-5">  
         <div class = "row">
-            <div class = "col-md-12 class-list">
-                {% for result in semesters %}
+            <div class = "col-md-6 class-list">
+                {% for semester in semesters %}
                 <div class="row">
-                    <a class="no-underline"href = "{{url_for('semesterID', semesterID=result['semester_id'])}}" >
+                    <a class="no-underline"href = "{{url_for('semesterID', semesterID=semester['semester_id'])}}" >
                         <div class="class-preview">
-                            {{result["semester_id"]}}
+                            {{semester["semester_id"]}}
                         </div>
                     </a>
                 </div>
                 {% endfor %}
             </div>  
         </div>
+    </div>
+    <div class="col-md-5">  
+        <br>
+        Current Semester: {{current_semester}}
+        <br>
+        <br>
+        <form method="POST" action="{{url_for('switchSemester')}}">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="submit" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Switch current semester
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                {% for semester in semesters %}
+                    <button class="dropdown-item" type="submit" name="semester" value = "{{semester['semester_id']}}">{{semester["semester_id"]}}</a>
+                {% endfor %}
+            </div>
+        </form>
+      </div>
     </div>
   </div>
 
