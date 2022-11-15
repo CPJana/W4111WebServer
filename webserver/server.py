@@ -404,6 +404,39 @@ def professorID(professorID):
   context = dict(classes = classes, professor = professor, semester = CURRENT_SEMESTER)
   return render_template("professor.html", **context)
 
+<<<<<<< HEAD
+=======
+@app.route('/addfriend/', methods=['POST'])
+def addFriend():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  student_email = request.form['student']
+
+  
+  cmd = "INSERT INTO Befriends VALUES ((:email1), (:email2))"
+
+  if session["email"] < student_email:
+    g.conn.execute(text(cmd), email1 = session["email"], email2 = student_email);
+  else:
+    g.conn.execute(text(cmd), email1 = student_email, email2 = session["email"]);
+
+  return redirect(url_for("studentID", studentID = student_email))
+
+@app.route('/removeFriend/', methods=['POST'])
+def removeFriend():
+
+  if not session.get('logged_in'):
+    return render_template('login.html')
+
+  student_email = request.form['student']
+  
+  cmd = "DELETE FROM Befriends B\
+        WHERE (B.email1 = (:user_email) AND B.email2=(:friend_email)) OR (B.email1 = (:friend_email) AND B.email2=(:user_email))"
+  g.conn.execute(text(cmd), user_email = session["email"], friend_email = student_email);
+  return redirect(url_for("studentID", studentID = student_email))
+>>>>>>> adf5e0b (Add minor space changes to server.py)
 
 #-------------------- LOAD/SEARCH FUNCTIONS --------------------#
 @app.route('/loadCourse/', methods=['POST'])
