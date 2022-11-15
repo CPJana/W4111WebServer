@@ -19,6 +19,8 @@
                             {{major['name']}} | {{major['department']}} Department
                         </a>
                     {% endfor %}
+                {%else%}
+                        Undeclared
                 {% endif %}
                 <div>
                     <a class="no-underline"href = "{{url_for('friends')}}" >
