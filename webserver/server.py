@@ -100,7 +100,7 @@ def schedule():
   cursor = g.conn.execute("SELECT Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week, Cl.class_id, Cl.semester_id \
                           FROM Class Cl, Registers R, Course Co, Professor P, Timeslot T \
                           WHERE R.email = %s AND R.class_id = Cl.class_id AND Cl.professor_id = P.professor_id AND Cl.course_id = Co.course_id \
-                          AND T.timeslot_id = Cl.timeslot_id AND Cl.semester_id=%s", 
+                          AND T.timeslot_id = Cl.timeslot_id AND Cl.semester_id = %s", 
                           session['email'], CURRENT_SEMESTER)
   classes = []
   for result in cursor:
