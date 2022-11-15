@@ -17,7 +17,7 @@
 
     <!-- Shared classes -->
     <div class="col-md-6">
-        Shared classes with {{student["first_name"]}}<br>
+        Shared classes with {{student["first_name"]}} for {{current_semester}}<br>
         {% if classes|length > 0 %}
             {% for class in classes %}
                 <div class="row">
@@ -35,7 +35,7 @@
                 </div>
             {% endfor %}
         {% else %}
-            No shared classes with {{student["first_name"]}} during {{semester}}.
+            No shared classes with {{student["first_name"]}} during {{current_semester}}.
         {%endif%}
     </div>
 

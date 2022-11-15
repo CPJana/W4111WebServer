@@ -16,22 +16,10 @@
         <div class="row">
             <div class = "col-md-12">
                 <div class = "padded-grey-box">
-                    <div class="col-md-8">
-                        Course ID: {{selected_class["course_id"]}}<br>
-                        Time: {{selected_class["start_time"]}} to {{selected_class["end_time"]}}<br>
-                        Days: {{selected_class["days_of_week"]}} <br>
-                        Semester: {{selected_class["semester_id"]}}
-                    </div>
-                    <div class="col-md-4">
-                        {% if user_stat|length > 0 %}
-                            <a type="button" method="POST" action = "{{url_for('dropClass')}}">Drop</a>
-                            <!--<a  class="btn btn-danger" href = "{{url_for('dropClass')}}  class_id={{selected_class["class_id"]}}">Drop</a>-->
-                        {%else%}
-                            <a type="button" method="POST" action = "{{url_for('addClass')}}">Add</a>
-                            <!--<a type="button" class="btn btn-primary" href = "{{url_for('addClass')}}">Add</a>-->
-                        {%endif%}
-                    </div>
-
+                    Course ID: {{selected_class["course_id"]}}<br>
+                    Time: {{selected_class["start_time"]}} to {{selected_class["end_time"]}}<br>
+                    Days: {{selected_class["days_of_week"]}} <br>
+                    Semester: {{selected_class["semester_id"]}}
                 </div>
             </div>
             

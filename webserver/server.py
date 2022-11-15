@@ -222,7 +222,7 @@ def classID(classID):
   if not session.get('logged_in'):
     return render_template('login.html')
 
-  cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
+  cursor = g.conn.execute("SELECT Cl.class_id, Cl.semester_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T \
                           WHERE Cl.class_id = %s AND Co.course_id = Cl.course_id AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", int(classID))
 
@@ -268,9 +268,9 @@ def studentID(studentID):
 
   cursor = g.conn.execute("SELECT Cl.class_id, Co.name as course_name, Co.course_id, P.name as professor_name, T.start_time, T.end_time, T.days_of_week\
                           FROM Class Cl, Course Co, Professor P, Timeslot T, Registers R\
-                          WHERE R.email=%s AND R.class_id=Cl.class_id AND Co.course_id = Cl.course_id \
-                          AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id", 
-                          studentID)
+                          WHERE R.email=%s AND R.class_id = Cl.class_id AND Co.course_id = Cl.course_id \
+                          AND Cl.professor_id = P.professor_id and T.timeslot_id = Cl.timeslot_id AND Cl.semester_id = %s", 
+                          studentID, CURRENT_SEMESTER)
   
   friends_classes = []
   for result in cursor:
@@ -298,7 +298,7 @@ def studentID(studentID):
     student = result
     break
 
-  context = dict(classes = friends_classes, student = student, isFriend = isFriend, semester = CURRENT_SEMESTER)
+  context = dict(classes = friends_classes, student = student, isFriend = isFriend, current_semester = CURRENT_SEMESTER)
 
   return render_template("student.html", **context)
 
