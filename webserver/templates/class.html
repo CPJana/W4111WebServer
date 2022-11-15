@@ -24,14 +24,10 @@
                     </div>
                     <div class="col-md-4">
                         {% if user_stat|length > 0 %}
-                            <button method="POST" action="/dropClass">
-                                <p><input class_id={{classes[0]["class_id"]}}></p>
-                            Drop</button>
-                            <!--<a  class="btn btn-danger" href = "{{url_for('dropClass')}}">Drop</a>-->
+                            <a type="button" method="POST" action = "{{url_for('dropClass')}}">Drop</a>
+                            <!--<a  class="btn btn-danger" href = "{{url_for('dropClass')}}  class_id={{classes[0]["class_id"]}}">Drop</a>-->
                         {%else%}
-                            <button method="POST" action="/dropClass">
-                                <p><input class_id={{classes[0]["class_id"]}}></p>
-                            Add</button>
+                            <a type="button" method="POST" action = "{{url_for('addClass')}}">Add</a>
                             <!--<a type="button" class="btn btn-primary" href = "{{url_for('addClass')}}">Add</a>-->
                         {%endif%}
                     </div>

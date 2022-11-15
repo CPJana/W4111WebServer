@@ -401,6 +401,7 @@ def professorID(professorID):
   context = dict(classes = classes, professor = professor, semester = CURRENT_SEMESTER)
   return render_template("professor.html", **context)
 
+<<<<<<< HEAD
 @app.route('/addfriend/', methods=['POST'])
 def addFriend():
 
@@ -418,6 +419,11 @@ def addFriend():
     g.conn.execute(text(cmd), email1 = student_email, email2 = session["email"]);
 
   return redirect(url_for("studentID", studentID = student_email))
+=======
+# Example of adding new data to the database
+# @app.route('/add/', methods=['POST'])
+# def add():
+>>>>>>> 08700a6 (Change server + class for buttons)
 
 @app.route('/removeFriend/', methods=['POST'])
 def removeFriend():
@@ -434,7 +440,7 @@ def removeFriend():
 
 @app.route('/addClass/', methods=['POST'])
 def addClass():
-
+  print("HERE HERE HERE")
   if not session.get('logged_in'):
     return render_template('login.html')
 
